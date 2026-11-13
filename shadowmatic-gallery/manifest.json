@@ -1,0 +1,1742 @@
+[
+  {
+    "name": "Meshes\\a1",
+    "vertices": 2587,
+    "triangles": 4796,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\a2",
+    "vertices": 2956,
+    "triangles": 5376,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\afootball1",
+    "vertices": 4263,
+    "triangles": 7916,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\afootball2",
+    "vertices": 1742,
+    "triangles": 3060,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\afootball3",
+    "vertices": 2447,
+    "triangles": 4720,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\airplane1",
+    "vertices": 3432,
+    "triangles": 6236,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\airplane2",
+    "vertices": 2900,
+    "triangles": 5220,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\akvalangist1",
+    "vertices": 3598,
+    "triangles": 6448,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\akvalangist2",
+    "vertices": 6797,
+    "triangles": 11640,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\and1",
+    "vertices": 2034,
+    "triangles": 3712,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\and2",
+    "vertices": 911,
+    "triangles": 1600,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\and3",
+    "vertices": 1530,
+    "triangles": 2752,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\angel",
+    "vertices": 6916,
+    "triangles": 13638,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\aquafish",
+    "vertices": 6563,
+    "triangles": 11134,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\at1",
+    "vertices": 3490,
+    "triangles": 6176,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\at2",
+    "vertices": 2096,
+    "triangles": 3752,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\babyCarriage",
+    "vertices": 4365,
+    "triangles": 7730,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\baseball1",
+    "vertices": 4492,
+    "triangles": 7828,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\baseball2",
+    "vertices": 2970,
+    "triangles": 5468,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\basketball1",
+    "vertices": 5434,
+    "triangles": 9902,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\basketball2",
+    "vertices": 3458,
+    "triangles": 6020,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\bear1",
+    "vertices": 1990,
+    "triangles": 3456,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\bear2",
+    "vertices": 2859,
+    "triangles": 5120,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\body1",
+    "vertices": 5391,
+    "triangles": 9660,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\body2",
+    "vertices": 3532,
+    "triangles": 6292,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\boxing1",
+    "vertices": 3934,
+    "triangles": 7048,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\boxing2",
+    "vertices": 4120,
+    "triangles": 7168,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\camera1",
+    "vertices": 6494,
+    "triangles": 11534,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\camera2",
+    "vertices": 5452,
+    "triangles": 9476,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\car1",
+    "vertices": 4692,
+    "triangles": 4138,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\car2",
+    "vertices": 5707,
+    "triangles": 4918,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cat1",
+    "vertices": 3775,
+    "triangles": 6856,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cat2",
+    "vertices": 2840,
+    "triangles": 5156,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\chair1",
+    "vertices": 2678,
+    "triangles": 4986,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\chair2",
+    "vertices": 1911,
+    "triangles": 3352,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\chair3",
+    "vertices": 3986,
+    "triangles": 7384,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\chess1",
+    "vertices": 3214,
+    "triangles": 6144,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\chess2",
+    "vertices": 3580,
+    "triangles": 6720,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\frik1",
+    "vertices": 1716,
+    "triangles": 3072,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\frik2",
+    "vertices": 1500,
+    "triangles": 2624,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\icecream",
+    "vertices": 2260,
+    "triangles": 4032,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\mayka1",
+    "vertices": 1426,
+    "triangles": 2688,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\mayka2",
+    "vertices": 2163,
+    "triangles": 3968,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\napo1",
+    "vertices": 2031,
+    "triangles": 3648,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\napo2",
+    "vertices": 3530,
+    "triangles": 6208,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\naski1",
+    "vertices": 4746,
+    "triangles": 8704,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\naski2",
+    "vertices": 1766,
+    "triangles": 3008,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\navak1",
+    "vertices": 1794,
+    "triangles": 3392,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\navak2",
+    "vertices": 5137,
+    "triangles": 9472,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\puzzle1",
+    "vertices": 3293,
+    "triangles": 5952,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\puzzle2",
+    "vertices": 3718,
+    "triangles": 6656,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\pyramid1",
+    "vertices": 2871,
+    "triangles": 5056,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\pyramid2",
+    "vertices": 2474,
+    "triangles": 4288,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\soska1",
+    "vertices": 3666,
+    "triangles": 6912,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\soska2",
+    "vertices": 2101,
+    "triangles": 3712,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\sunk",
+    "vertices": 7826,
+    "triangles": 14592,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\unicorn1",
+    "vertices": 2260,
+    "triangles": 4096,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\childAddon\\unicorn2",
+    "vertices": 2210,
+    "triangles": 3776,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\birdCrane_1",
+    "vertices": 3918,
+    "triangles": 7040,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\birdCrane_2",
+    "vertices": 5822,
+    "triangles": 10304,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\buddha_1",
+    "vertices": 2831,
+    "triangles": 4864,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\buddha_2",
+    "vertices": 4944,
+    "triangles": 8688,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\ch_1",
+    "vertices": 6590,
+    "triangles": 12288,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\ch_2",
+    "vertices": 3218,
+    "triangles": 6016,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\dragon_1",
+    "vertices": 8426,
+    "triangles": 14870,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\dragon_2",
+    "vertices": 9071,
+    "triangles": 16008,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\fireworks_1",
+    "vertices": 4121,
+    "triangles": 7600,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\fireworks_2",
+    "vertices": 4523,
+    "triangles": 8320,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\handFan_1",
+    "vertices": 4906,
+    "triangles": 8872,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\handFan_2",
+    "vertices": 8443,
+    "triangles": 15616,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\knotCoin_1",
+    "vertices": 6494,
+    "triangles": 11968,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\knotCoin_2",
+    "vertices": 6708,
+    "triangles": 12160,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\lanterns_1",
+    "vertices": 7220,
+    "triangles": 13312,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\lanterns_2",
+    "vertices": 5308,
+    "triangles": 9600,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\noodles_1",
+    "vertices": 4725,
+    "triangles": 8256,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\noodles_2",
+    "vertices": 5030,
+    "triangles": 8896,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\pag_1",
+    "vertices": 8777,
+    "triangles": 15886,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\china\\pag_2",
+    "vertices": 8386,
+    "triangles": 15328,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\candle_1",
+    "vertices": 4072,
+    "triangles": 7296,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\candle_2",
+    "vertices": 4515,
+    "triangles": 8160,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\candy_1",
+    "vertices": 4502,
+    "triangles": 8328,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\candy_2",
+    "vertices": 3682,
+    "triangles": 6748,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\elf_1",
+    "vertices": 5067,
+    "triangles": 9072,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\elf_2",
+    "vertices": 3720,
+    "triangles": 6860,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\gift_1",
+    "vertices": 4779,
+    "triangles": 8876,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\gift_2",
+    "vertices": 3795,
+    "triangles": 6920,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\hat_1",
+    "vertices": 2642,
+    "triangles": 4992,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\hat_2",
+    "vertices": 2423,
+    "triangles": 4416,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\santa_1",
+    "vertices": 3877,
+    "triangles": 7232,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\santa_2",
+    "vertices": 2932,
+    "triangles": 5312,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\sleigh_1",
+    "vertices": 3626,
+    "triangles": 6666,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\sleigh_2",
+    "vertices": 4952,
+    "triangles": 9012,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\snowflake_1",
+    "vertices": 4711,
+    "triangles": 7728,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\snowflake_2",
+    "vertices": 4657,
+    "triangles": 7728,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\snowman_1",
+    "vertices": 5633,
+    "triangles": 9964,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\snowman_2",
+    "vertices": 3354,
+    "triangles": 6000,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\toy",
+    "vertices": 3517,
+    "triangles": 6400,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\christmas\\tree",
+    "vertices": 8777,
+    "triangles": 15768,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cooler1",
+    "vertices": 4300,
+    "triangles": 7600,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cooler2",
+    "vertices": 4504,
+    "triangles": 8144,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cube1",
+    "vertices": 4216,
+    "triangles": 7784,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cube2",
+    "vertices": 2140,
+    "triangles": 3892,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\cube3",
+    "vertices": 3878,
+    "triangles": 7284,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dino1",
+    "vertices": 3629,
+    "triangles": 6176,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dino2",
+    "vertices": 2457,
+    "triangles": 4256,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\disk1",
+    "vertices": 3914,
+    "triangles": 7512,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\disk2",
+    "vertices": 2192,
+    "triangles": 4036,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\disk3",
+    "vertices": 1795,
+    "triangles": 3232,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dog1",
+    "vertices": 6357,
+    "triangles": 11670,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dog2",
+    "vertices": 2387,
+    "triangles": 4200,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\doll1",
+    "vertices": 3391,
+    "triangles": 5566,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\doll2",
+    "vertices": 3287,
+    "triangles": 5680,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dollar1",
+    "vertices": 3580,
+    "triangles": 6464,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\dollar2",
+    "vertices": 2436,
+    "triangles": 4416,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\duck",
+    "vertices": 4376,
+    "triangles": 7422,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\elephant1",
+    "vertices": 3732,
+    "triangles": 6852,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\elephant2",
+    "vertices": 4475,
+    "triangles": 7816,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\fishskeleton1",
+    "vertices": 3241,
+    "triangles": 5686,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\fishskeleton2",
+    "vertices": 2764,
+    "triangles": 4630,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\fishskeleton3",
+    "vertices": 2067,
+    "triangles": 3428,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\five1",
+    "vertices": 2967,
+    "triangles": 5392,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\five2",
+    "vertices": 3453,
+    "triangles": 6018,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\frog",
+    "vertices": 8364,
+    "triangles": 15144,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\g1",
+    "vertices": 1923,
+    "triangles": 3392,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\g2",
+    "vertices": 1365,
+    "triangles": 2432,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\g3",
+    "vertices": 1527,
+    "triangles": 2624,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gasmask1",
+    "vertices": 4757,
+    "triangles": 8630,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gasmask2",
+    "vertices": 4086,
+    "triangles": 7320,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gayka1",
+    "vertices": 2705,
+    "triangles": 1712,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gayka2",
+    "vertices": 3072,
+    "triangles": 1264,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gayka3",
+    "vertices": 2676,
+    "triangles": 892,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gramophone1",
+    "vertices": 2761,
+    "triangles": 4790,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gramophone2",
+    "vertices": 6112,
+    "triangles": 11194,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gymnastic1",
+    "vertices": 2516,
+    "triangles": 4150,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gymnastic2",
+    "vertices": 6199,
+    "triangles": 10750,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\gymnastic3",
+    "vertices": 2494,
+    "triangles": 4316,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\heraditak1",
+    "vertices": 5264,
+    "triangles": 1814,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\heraditak2",
+    "vertices": 5260,
+    "triangles": 1892,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\horse",
+    "vertices": 8953,
+    "triangles": 15966,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\hummer1",
+    "vertices": 3060,
+    "triangles": 5248,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\hummer2",
+    "vertices": 1731,
+    "triangles": 3008,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\karate",
+    "vertices": 8447,
+    "triangles": 15264,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\key1",
+    "vertices": 1921,
+    "triangles": 3260,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\key2",
+    "vertices": 1576,
+    "triangles": 2652,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\key3",
+    "vertices": 5831,
+    "triangles": 10056,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\kluch1",
+    "vertices": 2062,
+    "triangles": 2276,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\kluch2",
+    "vertices": 1772,
+    "triangles": 1252,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\krab1",
+    "vertices": 4444,
+    "triangles": 7768,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\krab2",
+    "vertices": 4731,
+    "triangles": 8208,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\kryuchok1",
+    "vertices": 6447,
+    "triangles": 5456,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\kryuchok2",
+    "vertices": 6236,
+    "triangles": 2852,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\kryuchok3",
+    "vertices": 6353,
+    "triangles": 7278,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lamp1",
+    "vertices": 2932,
+    "triangles": 5104,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lamp2",
+    "vertices": 3414,
+    "triangles": 6088,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lamp3",
+    "vertices": 2291,
+    "triangles": 4188,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lapata1",
+    "vertices": 4948,
+    "triangles": 8724,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lapata2",
+    "vertices": 4016,
+    "triangles": 7152,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lizard1",
+    "vertices": 3959,
+    "triangles": 6872,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\lizard2",
+    "vertices": 4905,
+    "triangles": 8724,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\m1",
+    "vertices": 3152,
+    "triangles": 5852,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\m2",
+    "vertices": 2662,
+    "triangles": 5024,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\main\\main_plane",
+    "vertices": 391,
+    "triangles": 704,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\main\\main_plane16_9",
+    "vertices": 391,
+    "triangles": 704,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\main\\main_plane2_0",
+    "vertices": 391,
+    "triangles": 704,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\blockHex",
+    "vertices": 90,
+    "triangles": 140,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\blockQuad",
+    "vertices": 120,
+    "triangles": 204,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\blockQuad1",
+    "vertices": 120,
+    "triangles": 204,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\blockQuad2",
+    "vertices": 120,
+    "triangles": 204,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\dots3",
+    "vertices": 12,
+    "triangles": 6,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\groundPlane",
+    "vertices": 153,
+    "triangles": 256,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\platform",
+    "vertices": 300,
+    "triangles": 538,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\platform_line",
+    "vertices": 64,
+    "triangles": 62,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\map\\storyObj_1",
+    "vertices": 1153,
+    "triangles": 2306,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_1L",
+    "vertices": 810,
+    "triangles": 1620,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_1R",
+    "vertices": 1600,
+    "triangles": 3196,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_2",
+    "vertices": 1039,
+    "triangles": 2074,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_2L",
+    "vertices": 1224,
+    "triangles": 2444,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_2R",
+    "vertices": 458,
+    "triangles": 912,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_3",
+    "vertices": 1217,
+    "triangles": 2434,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_3L",
+    "vertices": 292,
+    "triangles": 580,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_3R",
+    "vertices": 1812,
+    "triangles": 3624,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_4L",
+    "vertices": 884,
+    "triangles": 1764,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\map\\storyObj_4R",
+    "vertices": 884,
+    "triangles": 1764,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\monkey1",
+    "vertices": 2156,
+    "triangles": 4040,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\monkey2",
+    "vertices": 5643,
+    "triangles": 10288,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\p1",
+    "vertices": 1872,
+    "triangles": 3500,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\p2",
+    "vertices": 2556,
+    "triangles": 4828,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\pipe1",
+    "vertices": 1882,
+    "triangles": 3392,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\pipe2",
+    "vertices": 2403,
+    "triangles": 4416,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\pliers1",
+    "vertices": 2299,
+    "triangles": 4028,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\pliers2",
+    "vertices": 4753,
+    "triangles": 8584,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\qr",
+    "vertices": 7792,
+    "triangles": 15372,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\r1",
+    "vertices": 3319,
+    "triangles": 6164,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\r2",
+    "vertices": 2931,
+    "triangles": 5520,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\rabbit",
+    "vertices": 2872,
+    "triangles": 5120,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\rooms\\animals",
+    "vertices": 1340,
+    "triangles": 2341,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\animals_p01",
+    "vertices": 483,
+    "triangles": 663,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\animals_spotReg",
+    "vertices": 364,
+    "triangles": 644,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\china",
+    "vertices": 1112,
+    "triangles": 1862,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\china_p01",
+    "vertices": 1937,
+    "triangles": 2950,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\china_spotReg",
+    "vertices": 391,
+    "triangles": 704,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\christmas",
+    "vertices": 1118,
+    "triangles": 1862,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\christmas_fire",
+    "vertices": 291,
+    "triangles": 470,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\christmas_p01",
+    "vertices": 433,
+    "triangles": 611,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\christmas_spotReg",
+    "vertices": 320,
+    "triangles": 570,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\christmas_tree",
+    "vertices": 513,
+    "triangles": 866,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\final",
+    "vertices": 1186,
+    "triangles": 2179,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\final_spotReg",
+    "vertices": 229,
+    "triangles": 399,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\industrial",
+    "vertices": 1066,
+    "triangles": 1962,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\industrial_p01",
+    "vertices": 695,
+    "triangles": 1000,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\industrial_p02",
+    "vertices": 9,
+    "triangles": 8,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\industrial_spotReg",
+    "vertices": 162,
+    "triangles": 276,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\lightCone",
+    "vertices": 575,
+    "triangles": 1076,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\retro",
+    "vertices": 1196,
+    "triangles": 2206,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\retro_p01",
+    "vertices": 218,
+    "triangles": 246,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\retro_spotReg",
+    "vertices": 204,
+    "triangles": 346,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\sea",
+    "vertices": 1017,
+    "triangles": 1868,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\sea_p01",
+    "vertices": 390,
+    "triangles": 610,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\sea_spotReg",
+    "vertices": 166,
+    "triangles": 284,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\sport",
+    "vertices": 1072,
+    "triangles": 1992,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\sport_spotReg",
+    "vertices": 282,
+    "triangles": 489,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\symbols",
+    "vertices": 904,
+    "triangles": 1620,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\symbols_spotReg",
+    "vertices": 227,
+    "triangles": 394,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\toys",
+    "vertices": 907,
+    "triangles": 1526,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\toys_p01",
+    "vertices": 1001,
+    "triangles": 1441,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\toys_spotReg",
+    "vertices": 130,
+    "triangles": 216,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\tutorial",
+    "vertices": 938,
+    "triangles": 1718,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\rooms\\tutorial_spotReg",
+    "vertices": 173,
+    "triangles": 298,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\sandclock1",
+    "vertices": 1266,
+    "triangles": 2240,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\sandclock2",
+    "vertices": 4715,
+    "triangles": 8804,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\scissors1",
+    "vertices": 2070,
+    "triangles": 3920,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\scissors2",
+    "vertices": 3044,
+    "triangles": 5344,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\seehorse1",
+    "vertices": 3964,
+    "triangles": 6948,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\seehorse2",
+    "vertices": 3519,
+    "triangles": 6318,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shark1",
+    "vertices": 2804,
+    "triangles": 5248,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shark2",
+    "vertices": 2011,
+    "triangles": 3520,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shark3",
+    "vertices": 2910,
+    "triangles": 5120,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shtangist1",
+    "vertices": 2962,
+    "triangles": 5480,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shtangist2",
+    "vertices": 3466,
+    "triangles": 6408,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shtangist3",
+    "vertices": 5396,
+    "triangles": 10128,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shturval1",
+    "vertices": 4044,
+    "triangles": 6952,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\shturval2",
+    "vertices": 5290,
+    "triangles": 9040,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\skier1",
+    "vertices": 3608,
+    "triangles": 6622,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\skier2",
+    "vertices": 5298,
+    "triangles": 9296,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\snowboard1",
+    "vertices": 2866,
+    "triangles": 5032,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\snowboard2",
+    "vertices": 2102,
+    "triangles": 3952,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\snowboard3",
+    "vertices": 2613,
+    "triangles": 4664,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\sparrow1",
+    "vertices": 2146,
+    "triangles": 3960,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\sparrow2",
+    "vertices": 6141,
+    "triangles": 10948,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\teapot",
+    "vertices": 8481,
+    "triangles": 14044,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\telephone1",
+    "vertices": 6148,
+    "triangles": 5508,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\telephone2",
+    "vertices": 8503,
+    "triangles": 7506,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_am_1",
+    "vertices": 7082,
+    "triangles": 5844,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_am_2",
+    "vertices": 6016,
+    "triangles": 4820,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_bp_1",
+    "vertices": 9368,
+    "triangles": 8592,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_bp_2",
+    "vertices": 8740,
+    "triangles": 8010,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_cs_1",
+    "vertices": 6381,
+    "triangles": 5286,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_cs_2",
+    "vertices": 5791,
+    "triangles": 4744,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_ct_1",
+    "vertices": 5677,
+    "triangles": 4474,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_ct_2",
+    "vertices": 7371,
+    "triangles": 6062,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_de_1",
+    "vertices": 6237,
+    "triangles": 5324,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_de_2",
+    "vertices": 6550,
+    "triangles": 5548,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_en_1",
+    "vertices": 6439,
+    "triangles": 5742,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_en_2",
+    "vertices": 6763,
+    "triangles": 5914,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_es_1",
+    "vertices": 8085,
+    "triangles": 7240,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_es_2",
+    "vertices": 7905,
+    "triangles": 7158,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_fr_1",
+    "vertices": 8059,
+    "triangles": 7152,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_fr_2",
+    "vertices": 7552,
+    "triangles": 6550,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_it_1",
+    "vertices": 8838,
+    "triangles": 7792,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_it_2",
+    "vertices": 7939,
+    "triangles": 7010,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_jp_1",
+    "vertices": 9598,
+    "triangles": 8432,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_jp_2",
+    "vertices": 9658,
+    "triangles": 8298,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_kr_1",
+    "vertices": 6390,
+    "triangles": 5556,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_kr_2",
+    "vertices": 4224,
+    "triangles": 3390,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_ru_1",
+    "vertices": 7594,
+    "triangles": 6704,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_ru_2",
+    "vertices": 9179,
+    "triangles": 8434,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_tr_1",
+    "vertices": 5166,
+    "triangles": 4396,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\text_tr_2",
+    "vertices": 4604,
+    "triangles": 3840,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\train1",
+    "vertices": 4641,
+    "triangles": 7276,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\train2",
+    "vertices": 4743,
+    "triangles": 7236,
+    "lods": 1
+  },
+  {
+    "name": "Meshes\\valik1",
+    "vertices": 394,
+    "triangles": 676,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\valik2",
+    "vertices": 401,
+    "triangles": 700,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\valik3",
+    "vertices": 924,
+    "triangles": 1478,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\woodhorse1",
+    "vertices": 2748,
+    "triangles": 4862,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\woodhorse2",
+    "vertices": 3026,
+    "triangles": 5266,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\yakar1",
+    "vertices": 2490,
+    "triangles": 4282,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\yakar2",
+    "vertices": 3042,
+    "triangles": 5318,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\zamok1",
+    "vertices": 2138,
+    "triangles": 3276,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\zamok2",
+    "vertices": 1624,
+    "triangles": 1048,
+    "lods": 2
+  },
+  {
+    "name": "Meshes\\zamok3",
+    "vertices": 2646,
+    "triangles": 2096,
+    "lods": 2
+  }
+]
