@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./src/ui/styles.css">
   <script type="importmap">
     {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
   </script>
@@ -18,7 +18,10 @@
   <main id="stage" aria-label="Shadow puzzle. Drag to move, R to rotate, Shift-drag to tilt, Z then drag to raise or lower, or scroll to change depth."></main>
   <div class="vignette" aria-hidden="true"></div>
   <header>
-    <div><h1>MORPHEUS</h1><p class="subtitle">PROTOTYPE</p></div>
+    <div>
+      <h1>MORPHEUS</h1><p class="subtitle">PROTOTYPE</p>
+      <a class="gallery-link" href="./shadowmatic-gallery/gallery.html" target="_blank" rel="noopener">Explore Shadowmatic meshes <span aria-hidden="true">↗</span></a>
+    </div>
     <div class="actions">
       <button id="reset" title="Restore initial object positions and rotations"><span aria-hidden="true">↶</span> Reset</button>
       <button id="pause" aria-pressed="false"><span aria-hidden="true">Ⅱ</span> <span id="pause-label">Pause</span></button>
@@ -28,39 +31,14 @@
     <h2>01 / AQUAFISH</h2>
     <canvas id="target" width="192" height="96" role="img" aria-label="Target silhouette projected by the Aquafish mesh"></canvas>
     <div class="match-row"><span>MATCH</span><strong id="match">—</strong></div>
-    <p id="feedback" role="status" aria-live="polite">Move and rotate Aquafish to match its target shadow.</p>
     <button id="show-solution" class="solution-button">Show solution</button>
   </section>
-  <section class="transform-panel" aria-label="Selected object transforms">
-    <h2>OBJECT TRANSFORM</h2>
-    <label for="height">Height / Up &amp; down <output id="height-value">0.00</output></label>
-    <input id="height" type="range" min="0" max="4.5" step="0.01" aria-label="Height: move object above or below the others">
-    <label for="depth">Depth / Wall distance <output id="depth-value">0.00</output></label>
-    <input id="depth" type="range" min="-2.5" max="3.1" step="0.01" aria-label="Distance from the wall">
-    <div class="range-ends"><span>Wall</span><span>Light</span></div>
-    <h3>ROTATION</h3>
-    <label for="rotation-x">X / Tilt <output id="rotation-x-value">0°</output></label>
-    <input id="rotation-x" type="range" min="-180" max="180" step="1">
-    <label for="rotation-y">Y / Turn <output id="rotation-y-value">0°</output></label>
-    <input id="rotation-y" type="range" min="-180" max="180" step="1">
-    <label for="rotation-z">Z / Roll <output id="rotation-z-value">0°</output></label>
-    <input id="rotation-z" type="range" min="-180" max="180" step="1">
-    <p>Fine-tune the form. Watch the shadow.</p>
-  </section>
-  <div class="mode"><span class="live-dot"></span><span id="mode-label">MOVE MODE</span><span id="selection-label">01 / AQUAFISH</span></div>
-  <nav class="objects" aria-label="Select puzzle object">
-    <span class="eyebrow">OBJECTS</span>
-    <div class="slots">
-      <button class="slot selected" data-object="0" aria-label="Select Aquafish, shortcut 1" aria-pressed="true"><svg viewBox="0 0 70 50" aria-hidden="true"><path d="M12 25 Q28 5 49 25 Q28 45 12 25Z M49 25 L62 12 L62 38Z"/></svg><span>01 <small>Aquafish</small></span></button>
-    </div>
-  </nav>
   <footer><span><kbd>Drag</kbd> Move <b>·</b> <kbd>R</kbd> Rotate <b>·</b> <kbd>Z</kbd> Up / down</span><span class="extra"><kbd>Scroll</kbd> Depth <b>·</b> <kbd>Shift</kbd> + drag Tilt</span></footer>
   <button id="check" class="primary">Check Shadow <span aria-hidden="true">→</span></button>
-  <div class="telemetry"><span id="status">Preparing the light…</span><span id="performance">Measuring FPS…</span></div>
+  <div class="telemetry"><span id="performance">Measuring FPS…</span></div>
   <div id="error" role="alert" hidden></div>
   <script type="module">
-    import('./main.js').catch(error => {
-      document.querySelector('#status').textContent = 'Viewer unavailable';
+    import('./src/main.js').catch(error => {
       const notice = document.querySelector('#error');
       notice.hidden = false;
       notice.textContent = `Could not start: ${error.message}. Run a local HTTP server and check your connection to the Three.js CDN.`;
@@ -69,5 +47,6 @@
   </script>
 </body>
 </html>
+
 
 

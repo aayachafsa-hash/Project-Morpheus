@@ -16,7 +16,7 @@ Le projet utilise des modules ES et charge des fichiers `.glb` : il faut le serv
 python -m http.server 8001
 ```
 
-Puis ouvrir http://localhost:8001.
+Puis ouvrir http://localhost:8001. Le lien **Explore Shadowmatic meshes** ouvre la galerie.
 
 Une connexion Internet est nécessaire : Three.js (v0.170.0) est chargé depuis un CDN, ainsi que la police Inter.
 
@@ -26,7 +26,6 @@ Une connexion Internet est nécessaire : Three.js (v0.170.0) est chargé depuis 
 2. Le joueur déplace et oriente l'objet (position, profondeur, hauteur, rotation).
 3. La vignette « Target » à gauche montre la silhouette à reproduire.
 4. Le score **MATCH** compare l'ombre réelle avec l'ombre cible.
-5. À 95 % ou plus, la cible est considérée comme atteinte.
 
 ### Comment le score est calculé
 
@@ -41,19 +40,17 @@ L'ombre n'est pas simulée : on utilise l'ombre réellement rendue par le GPU.
 
 | Action | Commande |
 | --- | --- |
-| Sélectionner un objet | Clic sur l'objet, touche `1`, ou emplacement dans la barre « Objects » |
 | Déplacer sur la table | Glisser avec la souris |
 | Rotation horizontale | Touche `R`, puis glisser |
 | Incliner | `Maj` + glisser |
 | Monter / descendre | Touche `Z`, puis glisser verticalement |
-| Profondeur (distance au mur) | Molette ou slider « Depth » |
-| Réglage précis | Sliders Height, Depth et rotation X / Y / Z |
+| Profondeur (distance au mur) | Molette |
 | Quitter un mode | `Échap` |
 
 Boutons de l'interface :
 
 - **Reset** : remet l'objet dans sa position de départ.
-- **Pause** : fige les transformations et désactive les sliders.
+- **Pause** : fige les transformations.
 - **Check Shadow** : calcule immédiatement le score.
 - **Show solution** : déplace l'objet vers la solution.
 
@@ -61,14 +58,14 @@ Dans le code, la hauteur correspond à l'axe Y de Three.js et la profondeur à l
 
 ## État actuel du prototype
 
-- Un niveau jouable : le poisson **Aquafish** (`assets/aquafish.glb`).
-- Une sculpture d'avion (`assets/airplane1.glb`) est affichée sur un socle comme décor. Ce n'est pas une pièce jouable et elle est masquée pendant le calcul du score.
+- Un niveau jouable : le poisson **Aquafish** (`src/assets/models/aquafish.glb`).
+- Une sculpture d'avion (`src/assets/models/airplane1.glb`) est affichée sur un socle comme décor. Ce n'est pas une pièce jouable et elle est masquée pendant le calcul du score.
 - Pas encore de gestion de plusieurs niveaux, d'écran de victoire ni d'indices progressifs.
 - Le comportement dans le navigateur doit être revérifié après chaque modification importante.
 
 ## Configuration
 
-Tous les réglages sont dans l'objet `CONFIG` (fichier `src/config.js` après découpage, en haut de `main.js` avant) :
+Tous les réglages sont dans l'objet `CONFIG` (fichier `src/config.js`) :
 
 - `light` : position, cible, couleur, intensité, angle et pénombre du spot.
 - `shadow` : résolution de la shadow map et biais.
@@ -78,25 +75,14 @@ Tous les réglages sont dans l'objet `CONFIG` (fichier `src/config.js` après d�
 
 Recharger la page après toute modification.
 
-## Architecture visée
+## Architecture
 
-Le dépôt est organisé en modules, un par domaine de responsabilité :
-
-```
-morpheus-prototype/
-├── index.html
-├── style.css
-├── README.md
-├── assets/
-│   ├── aquafish.glb
-│   └── airplane1.glb
-└── src/
-    ├── main.js            # assemblage des modules et boucle d'animation
-    ├── config.js          # CONFIG
-    ├── scene/             # Personne 1 : scène, lumières, matériaux, chargement
-    ├── gameplay/          # Personne 2 : contrôles, système d'ombre, validation, niveaux
-    └── ui/                # Personne 3 : menus, HUD, paramètres
-```
+- `src/main.js` assemble les modules.
+- `src/scene/` gère le rendu, les lumières et les modèles.
+- `src/gameplay/` gère les contrôles, les ombres et le score.
+- `src/ui/` contient les boutons, la vignette cible et les styles.
+- `src/assets/models/` contient les modèles du prototype.
+- `shadowmatic-gallery/` contient la galerie et ses fichiers GLB et OBJ.
 
 ## Répartition de l'équipe
 
