@@ -1,14 +1,24 @@
-import { CONFIG } from '../config.js';
-import { createMenu } from './Menu.js';
+import { CONFIG } from '../config.js?shadow-progress';
+import { createMenu } from './Menu.js?shadow-progress';
 
 const $ = selector => document.querySelector(selector);
 
 export function createUI() {
   const menu = createMenu();
+  const controls = $('#player-controls');
+  const axisLabel = $('#rotation-axis');
+  const match = $('#match');
+  const status = $('#match-status');
+  const dots = [...$('#progress-dots').children];
+  const assistButton = $('#assist');
+  const showSolution = $('#show-solution');
 
   function drawTargetMask(target) {
     const scoreSettings = CONFIG.scoring;
-    const context = $('#target').getContext('2d');
+    const canvas = $('#target');
+    canvas.width = scoreSettings.width;
+    canvas.height = scoreSettings.height;
+    const context = canvas.getContext('2d');
     const image = context.createImageData(scoreSettings.width, scoreSettings.height);
     for (let y = 0; y < scoreSettings.height; y++) {
       for (let x = 0; x < scoreSettings.width; x++) {
@@ -37,6 +47,13 @@ export function createUI() {
     context.fillStyle = '#e6d8be';
     context.fillRect(0, 0, preview.width, preview.height);
     context.drawImage(preview, minX, minY, width, height, (preview.width - width * scale) / 2, (preview.height - height * scale) / 2, width * scale, height * scale);
+
+    const reference = $('#target-reference');
+    reference.addEventListener('load', () => {
+      reference.hidden = false;
+      canvas.hidden = true;
+    }, { once: true });
+    reference.src = CONFIG.puzzle.referenceImage;
   }
 
   return {
@@ -44,7 +61,21 @@ export function createUI() {
     bindControls: menu.bindButtons,
     drawTargetMask,
     setPaused: menu.setPaused,
-    setMatch(match) { $('#match').textContent = `${match}%`; },
+    setMode(mode) {
+      if (controls.dataset.mode !== mode) controls.dataset.mode = mode;
+    },
+    setRotationAxis(axis) { axisLabel.textContent = axis; },
+    setProgress(result, message, completed, canAssist, paused) {
+      const value = result ? `${result.percent}%` : '—';
+      if (match.textContent !== value) match.textContent = value;
+      if (status.textContent !== message) status.textContent = message;
+      CONFIG.scoring.progressDots.forEach((threshold, i) => {
+        dots[i].classList.toggle('lit', (result?.similarity ?? 0) >= threshold);
+      });
+      dots.at(-1).classList.toggle('lit', completed);
+      assistButton.disabled = !canAssist;
+      showSolution.disabled = paused || completed;
+    },
     setPerformance(message) { $('#performance').textContent = message; },
     showError(message) {
       $('#error').hidden = false;

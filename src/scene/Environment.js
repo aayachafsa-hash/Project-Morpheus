@@ -1,7 +1,26 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { CONFIG } from '../config.js';
 
-export function createEnvironment(scene, renderer) {
+const roomUrl = new URL('../assets/models/Morpheus-Room.glb', import.meta.url).href;
+const textureDirectory = new URL('../assets/textures/', import.meta.url);
+
+async function loadTexture(loader, name, colorSpace = THREE.NoColorSpace) {
+  const texture = await loader.loadAsync(new URL(name + '.png', textureDirectory).href);
+  texture.flipY = false;
+  texture.colorSpace = colorSpace;
+  return texture;
+}
+
+function copyTextureUV(texture, source) {
+  texture.channel = source.channel;
+  texture.wrapS = source.wrapS;
+  texture.wrapT = source.wrapT;
+  texture.offset.copy(source.offset);
+  texture.repeat.copy(source.repeat);
+}
+
+export async function createEnvironment(scene, renderer) {
   // Deterministic, locally generated surface textures.
   function noiseTexture(seed, repeat) {
     const surface = document.createElement('canvas');
@@ -23,16 +42,104 @@ export function createEnvironment(scene, renderer) {
     // A bump map stores scalar data, so leave its colorSpace at NoColorSpace.
     return texture;
   }
-  const stoneNoise = noiseTexture(17, 3);
-  const wallMaterial = new THREE.MeshStandardMaterial({ color: CONFIG.colors.wall, roughness: 0.95, bumpMap: noiseTexture(29, 5), bumpScale: CONFIG.material.wallBump });
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.wall.width, CONFIG.wall.height), wallMaterial);
-  wall.position.set(0, CONFIG.wall.height / 2, CONFIG.wall.z);
-  wall.receiveShadow = true;
-  scene.add(wall);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.table.width, CONFIG.table.depth), new THREE.MeshStandardMaterial({ color: CONFIG.colors.floor, roughness: 0.78, bumpMap: noiseTexture(91, 9), bumpScale: CONFIG.material.floorBump }));
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.set(0, CONFIG.table.y, CONFIG.table.centerZ);
-  floor.receiveShadow = true;
-  scene.add(floor);
-  return { wall, floor, stoneNoise };
+  const loader = new THREE.TextureLoader();
+  const [{ scene: room }, relief, rimColor, rimRoughness, marbleColor, marbleRoughness] = await Promise.all([
+    new GLTFLoader().loadAsync(roomUrl),
+    loadTexture(loader, 'medusa-relief-normal'),
+    loadTexture(loader, 'plate-rim-color', THREE.SRGBColorSpace),
+    loadTexture(loader, 'plate-rim-roughness'),
+    loadTexture(loader, 'marble-table-color', THREE.SRGBColorSpace),
+    loadTexture(loader, 'marble-table-roughness'),
+  ]);
+
+  // GLTFLoader sanitizes Blender node names. The copper plate has multiple
+  // material primitives, so the exported object resolves to a Group.
+  function requireRoomObject(name) {
+    const object = room.getObjectByName(THREE.PropertyBinding.sanitizeNodeName(name));
+    if (!object) throw new Error(`Morpheus-Room.glb is missing the object "${name}".`);
+    return object;
+  }
+
+  const wall = requireRoomObject('Limestone projection wall');
+  const floor = requireRoomObject('Cube.001');
+  const plate = requireRoomObject('Cylinder');
+  const lens = requireRoomObject('Emissive Fresnel lens');
+
+  floor.traverse(object => {
+    if (!object.isMesh) return;
+    const material = object.material;
+    for (const texture of [marbleColor, marbleRoughness]) {
+      // Blender bake covers UV -1 to 1.75 in both axes. glTF flips V.
+      texture.channel = material.map.channel;
+      texture.repeat.setScalar(1 / 2.75);
+      texture.offset.set(1 / 2.75, 0.75 / 2.75);
+    }
+    material.map = marbleColor;
+    material.roughnessMap = marbleRoughness;
+    material.roughness = 1;
+    material.specularIntensity = CONFIG.material.marbleSpecular;
+    material.clearcoat = 0;
+  });
+
+  plate.traverse(object => {
+    if (!object.isMesh) return;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    for (const material of materials) {
+      if (material.name === 'Classic decorative wallpaper') {
+        // Bake the Blender diffuse/AO mix and roughness ramp, keeping the
+        // GLB's automap UVs, repeat transform and tangent-space normal.
+        copyTextureUV(rimColor, material.map);
+        copyTextureUV(rimRoughness, material.roughnessMap);
+        material.map = rimColor;
+        material.roughnessMap = rimRoughness;
+        material.roughness = 1;
+        continue;
+      }
+      if (material.name !== 'Morpheus | Medusa brushed copper') continue;
+      // The GLB links the grayscale height image as both albedo and normal.
+      material.color.setHex(0xb8693a);
+      material.map = null;
+      relief.channel = material.normalMap.channel;
+      material.normalMap = relief;
+      material.normalScale.setScalar(1);
+      material.roughness = 0.35;
+      material.metalness = 1;
+      material.anisotropy = 0;
+    }
+  });
+
+  room.updateMatrixWorld(true);
+  const plateBounds = new THREE.Box3().setFromObject(plate, true);
+  const floorBounds = new THREE.Box3().setFromObject(floor, true);
+  const platform = {
+    center: plateBounds.getCenter(new THREE.Vector3()),
+    size: plateBounds.getSize(new THREE.Vector3()),
+    y: plateBounds.max.y,
+    floorY: floorBounds.max.y,
+  };
+
+  const roomMeshesOutsideProjection = [];
+  room.traverse(object => {
+    if (object.isLight) {
+      // The runtime projector owns both the display and scoring shadows.
+      object.visible = false;
+    }
+    if (!object.isMesh) return;
+    // The small projector shadow map only tracks the moving puzzle piece.
+    object.receiveShadow = true;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    for (const material of materials) {
+      if (material.name === 'Morpheus | Ivory glazed ceramic') {
+        // The exported shader omitted Blender's procedural ivory color ramp.
+        material.color.setRGB(0.667, 0.550, 0.370, THREE.LinearSRGBColorSpace);
+      }
+      // Keep the lens emission without the full-scene transmission pass.
+      if (material.name === 'Morpheus | Fresnel optical glass' || material.name === 'Morpheus | Fresnel ridges') {
+        material.transmission = 0;
+      }
+    }
+    if (object !== wall) roomMeshesOutsideProjection.push(object);
+  });
+  scene.add(room);
+  return { wall, lens, platform, roomMeshesOutsideProjection, stoneNoise: noiseTexture(17, 3) };
 }

@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { CONFIG } from '../config.js';
+import { CONFIG } from '../config.js?shadow-progress';
+import { createTargetGuide } from '../scene/TargetGuide.js';
 
-export function createShadowSystem({ renderer, scene, wall, floor, gizmo, importedDisplay, piece }) {
+export function createShadowSystem({ renderer, scene, wall, roomMeshesOutsideProjection, gizmo, piece }) {
   // Score the actual spotlight shadow, not object positions or a fabricated value.
   // A temporary ShadowMaterial isolates the wall shadow in an offscreen buffer.
   // The piece remain shadow casters, but write no visible color/depth in this pass.
@@ -13,20 +14,25 @@ export function createShadowSystem({ renderer, scene, wall, floor, gizmo, import
   scoreCamera.lookAt(0, 0, CONFIG.wall.z);
   const shadowOnlyMaterial = new THREE.ShadowMaterial({ color: 0x000000, opacity: 1, toneMapped: false });
   const whiteBackground = new THREE.Color(0xffffff);
+  const roomVisibility = roomMeshesOutsideProjection.map(() => true);
+  let guide;
   function captureShadowMask() {
     const previousTarget = renderer.getRenderTarget();
     const background = scene.background;
     const material = wall.material;
     const gizmoVisible = gizmo.visible;
-    const displayVisible = importedDisplay.visible;
     const outlineVisible = piece.outline.visible;
+    const guideVisible = guide?.visible;
     try {
       scene.background = whiteBackground;
       wall.material = shadowOnlyMaterial;
-      floor.visible = false;
+      for (const [index, mesh] of roomMeshesOutsideProjection.entries()) {
+        roomVisibility[index] = mesh.visible;
+        mesh.visible = false;
+      }
       gizmo.visible = false;
-      importedDisplay.visible = false;
       piece.outline.visible = false;
+      if (guide) guide.visible = false;
       piece.mesh.material.colorWrite = false;
       piece.mesh.material.depthWrite = false;
       renderer.setRenderTarget(scoreTarget);
@@ -39,16 +45,21 @@ export function createShadowSystem({ renderer, scene, wall, floor, gizmo, import
       renderer.setRenderTarget(previousTarget);
       scene.background = background;
       wall.material = material;
-      floor.visible = true;
+      for (const [index, mesh] of roomMeshesOutsideProjection.entries()) mesh.visible = roomVisibility[index];
       gizmo.visible = gizmoVisible;
-      importedDisplay.visible = displayVisible;
       piece.outline.visible = outlineVisible;
+      if (guide) guide.visible = guideVisible;
       piece.mesh.material.colorWrite = true;
       piece.mesh.material.depthWrite = true;
     }
   }
   return {
     captureShadowMask,
+    initializeGuide(mask) {
+      guide = createTargetGuide(mask, wall);
+      scene.add(guide);
+    },
+    setGuideVisible(visible) { guide.visible = visible; },
     invalidateShadows() { renderer.shadowMap.needsUpdate = true; },
     shadowsNeedUpdate() { return renderer.shadowMap.needsUpdate; },
   };

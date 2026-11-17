@@ -1,21 +1,20 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { createEnvironment } from './Environment.js';
+import { createEnvironment } from './Environment.js?room-glb';
 import { addLighting } from './Lighting.js';
 import { loadSceneAssets } from './AssetLoader.js';
+import { createSelectionGizmo } from './SelectionGizmo.js';
+import { createPieceMovement } from '../gameplay/PieceMovement.js';
 
 export async function createScene(stage) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(CONFIG.colors.background);
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, CONFIG.rendering.maxPixelRatio));
-  renderer.setSize(innerWidth, innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = THREE.AgXToneMapping;
   renderer.toneMappingExposure = CONFIG.rendering.exposure;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  // Nothing animates except the puzzle piece. Update shadows only while they move.
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  // The selection animates independently of the puzzle's shadow map.
   renderer.shadowMap.autoUpdate = false;
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
@@ -23,34 +22,42 @@ export async function createScene(stage) {
   stage.append(canvas);
   const camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, innerWidth / innerHeight, 0.1, 80);
   camera.position.fromArray(CONFIG.camera.position);
-  camera.lookAt(new THREE.Vector3(...CONFIG.camera.target));
+  camera.rotation.set(...CONFIG.camera.rotation, 'YXZ');
 
-  const { wall, floor, stoneNoise } = createEnvironment(scene, renderer);
-  addLighting(scene);
-  const { importedDisplay, piece, loadImportedSculpture } = await loadSceneAssets(scene, stoneNoise);
-
-  // Lightweight selection gizmo; it neither casts nor receives a shadow.
-  const gizmo = new THREE.Group();
-  const ringPoints = Array.from({ length: 81 }, (_, i) => new THREE.Vector3(Math.cos(i / 80 * Math.PI * 2) * 0.82, 0.025, Math.sin(i / 80 * Math.PI * 2) * 0.82));
-  gizmo.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ringPoints), new THREE.LineBasicMaterial({ color: CONFIG.colors.cyan, transparent: true, opacity: 0.5, toneMapped: false })));
+  const { wall, roomMeshesOutsideProjection, stoneNoise, lens, platform } = await createEnvironment(scene, renderer);
+  const { piece } = await loadSceneAssets(scene, stoneNoise);
+  piece.platform = platform;
+  addLighting(scene, renderer, { lens, wall, piece });
+  piece.movement = createPieceMovement(piece);
+  const { gizmo, update } = createSelectionGizmo(piece, camera);
   scene.add(gizmo);
 
+  let needsRender = true;
+  let wasPaused = false;
   function resize() {
     camera.aspect = innerWidth / innerHeight;
-    camera.fov = camera.aspect < 1 ? CONFIG.camera.portraitFov : CONFIG.camera.fov;
+    const halfAngle = THREE.MathUtils.degToRad(CONFIG.camera.minHorizontalFov / 2);
+    const verticalFov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(halfAngle) / camera.aspect));
+    camera.fov = Math.max(CONFIG.camera.fov, verticalFov);
     camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(devicePixelRatio, CONFIG.rendering.maxPixelRatio));
+    const { maxPixelRatio, maxPixels } = CONFIG.rendering;
+    renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio, Math.sqrt(maxPixels / (innerWidth * innerHeight))));
     renderer.setSize(innerWidth, innerHeight);
+    needsRender = true;
   }
+  resize();
   addEventListener('resize', resize);
 
   return {
-    canvas, camera, piece, resize, loadImportedSculpture,
-    shadowScene: { renderer, scene, wall, floor, gizmo, importedDisplay, piece },
+    canvas, camera, piece, resize,
+    shadowScene: { renderer, scene, wall, roomMeshesOutsideProjection, gizmo, piece },
     setAnimationLoop(callback) { renderer.setAnimationLoop(callback); },
-    renderSelection(piece) {
-      gizmo.position.set(piece.mesh.position.x, CONFIG.table.y + piece.height, piece.mesh.position.z);
+    renderSelection(selection, delta) {
+      if (selection.paused && wasPaused && !needsRender && !renderer.shadowMap.needsUpdate) return;
+      update(selection, delta);
       renderer.render(scene, camera);
+      wasPaused = selection.paused;
+      needsRender = false;
     },
   };
 }
