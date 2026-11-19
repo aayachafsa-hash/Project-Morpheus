@@ -1,0 +1,25 @@
+/* MORPHEUS UI, Step 2: stage layers and screen transitions. Needs tokens.css. Does not style any component.
+   Every class is .mp- prefixed so it cannot leak into the prototype's style.css. */
+
+.mp-stage { position: fixed; inset: 0; isolation: isolate; overflow: hidden; pointer-events: none; }
+.mp-stage__layer { position: absolute; inset: 0; }
+.mp-stage__screens { z-index: 1; }
+.mp-stage__overlays { z-index: 2; }
+
+/* A wrapper per mounted screen. data-state: entering | active | leaving.  Duration comes from --mp-screen-ms,
+   which the manager sets per navigation (0ms under reduced motion, where states never animate). */
+.mp-screen { position: absolute; inset: 0; pointer-events: auto; outline: none; }
+.mp-screen[data-keys="passthrough"] { pointer-events: none; } /* screen's own controls opt back in with pointer-events: auto */
+.mp-screen[data-layer="overlay"] { background: rgb(0 0 0 / .5); }
+.mp-screen[inert] { pointer-events: none; }
+.mp-screen[data-state="entering"] { animation: mp-screen-in var(--mp-screen-ms, var(--mp-dur-screen)) var(--mp-ease) both; }
+.mp-screen[data-state="leaving"] { animation: mp-screen-out var(--mp-screen-ms, var(--mp-dur-screen)) var(--mp-ease) both; pointer-events: none; }
+@keyframes mp-screen-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mp-screen-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Visually hidden live region for screen announcements. */
+.mp-stage__announcer { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-screen[data-state] { animation: none; }
+}

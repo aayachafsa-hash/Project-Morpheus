@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MORPHEUS / Screen manager demo (Step 2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/ui/tokens.css">
+  <link rel="stylesheet" href="./src/ui/ui.css">
+  <link rel="stylesheet" href="./src/ui/screens/screens.css">
+  <style>
+    /* Page-only styles for this demo (demo-*). Not part of the UI kit. */
+    html { background: var(--mp-bg-0); }
+    body { margin: 0; font-family: var(--mp-font-ui); color: var(--mp-parchment); }
+    .demo-center { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--mp-space-5); text-align: center; padding: var(--mp-space-5); }
+    .demo-col { display: grid; gap: var(--mp-space-3); min-width: min(22rem, 90vw); }
+    .demo-game { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(90% 70% at 50% 40%, #3b2a1d 0%, #14100c 70%); }
+    .demo-game > * { pointer-events: auto; }
+    .demo-hud { position: absolute; inset: var(--mp-space-5) var(--mp-space-5) auto; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+    .demo-hud > * { pointer-events: auto; }
+    .demo-game__body { position: absolute; left: var(--mp-space-5); right: var(--mp-space-5); bottom: var(--mp-space-5); display: flex; gap: var(--mp-space-4); align-items: center; flex-wrap: wrap; }
+    .demo-inspector { position: fixed; z-index: 100; right: var(--mp-space-3); top: var(--mp-space-3); width: min(21rem, 92vw); max-height: 92vh; overflow: auto; padding: var(--mp-space-3); background: rgb(10 8 6 / .88); border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-md); font-size: .78rem; line-height: 1.5; display: grid; gap: var(--mp-space-2); }
+    .demo-inspector h2 { margin: 0; font: 500 .72rem var(--mp-font-ui); letter-spacing: .2em; color: var(--mp-tan); }
+    .demo-inspector dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0 var(--mp-space-3); }
+    .demo-inspector dt { color: var(--mp-tan); } .demo-inspector dd { margin: 0; word-break: break-word; }
+    .demo-inspector button { font: inherit; color: var(--mp-parchment); background: #1c1510; border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-sm); padding: .3rem .6rem; cursor: pointer; }
+    .demo-inspector button:focus-visible, .demo-inspector input:focus-visible { outline: var(--mp-focus-ring); outline-offset: 2px; }
+    .demo-row { display: flex; gap: var(--mp-space-2); flex-wrap: wrap; align-items: center; }
+    .demo-log { margin: 0; padding: 0; list-style: none; max-height: 9rem; overflow: auto; color: var(--mp-tan); font-family: ui-monospace, monospace; font-size: .7rem; }
+    .demo-log li[data-bad] { color: var(--mp-fail-text); }
+  </style>
+</head>
+<body>
+  <aside class="demo-inspector" aria-label="Screen manager inspector">
+    <h2>MANAGER STATE</h2>
+    <dl>
+      <dt>current</dt><dd id="i-current">—</dd>
+      <dt>overlays</dt><dd id="i-overlays">—</dd>
+      <dt>history</dt><dd id="i-history">—</dd>
+      <dt>can go back</dt><dd id="i-back">—</dd>
+      <dt>transition</dt><dd id="i-busy">—</dd>
+    </dl>
+    <div class="demo-row">
+      <button type="button" id="b-back">ui.back()</button>
+      <button type="button" id="b-bad">invalid go('boot')</button>
+    </div>
+    <label class="demo-row"><input type="checkbox" id="c-reduced"> force reduced motion</label>
+    <h2>LOG</h2>
+    <ol class="demo-log" id="log" aria-label="Navigation log"></ol>
+  </aside>
+  <script type="module" src="./screens-demo.js"></script>
+</body>
+</html>
