@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MORPHEUS / UI kit (Step 1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/ui/tokens.css">
+  <link rel="stylesheet" href="./src/ui/ui.css">
+  <style>
+    /* Page-only layout for this test page (kit-*). Not part of the UI kit. */
+    html { background: var(--mp-bg-0); }
+    body { margin: 0; min-height: 100vh; font-family: var(--mp-font-ui); color: var(--mp-parchment); }
+    .kit { position: relative; z-index: 1; max-width: 72rem; margin: 0 auto; padding: var(--mp-space-7) var(--mp-space-5) var(--mp-space-8); display: grid; gap: var(--mp-space-7); }
+    .kit section { display: grid; gap: var(--mp-space-4); }
+    .kit-row { display: flex; flex-wrap: wrap; gap: var(--mp-space-4); align-items: flex-start; }
+    .kit-col { display: grid; gap: var(--mp-space-2); min-width: 14rem; }
+    .kit-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: var(--mp-space-3); }
+    .kit-swatch { display: grid; gap: 0.35rem; }
+    .kit-chip { height: 3rem; border-radius: var(--mp-r-sm); border: 1px solid var(--mp-border-soft); }
+    .kit-note { max-width: 60ch; }
+    .kit-controls { display: flex; gap: var(--mp-space-4); flex-wrap: wrap; align-items: center; }
+    .kit-controls label { display: flex; gap: var(--mp-space-2); align-items: center; }
+    .kit select, .kit input[type=range] { accent-color: var(--mp-gold); }
+    .kit select { all: revert; font: inherit; color: var(--mp-parchment); background: var(--mp-bg-2); border: 1px solid var(--mp-bronze); border-radius: var(--mp-r-sm); padding: 0.4rem 0.6rem; }
+    .kit-specimen { display: grid; gap: var(--mp-space-4); padding: var(--mp-space-5); }
+    .kit-specimen > div { display: grid; grid-template-columns: 9rem 1fr; gap: var(--mp-space-4); align-items: baseline; }
+    .kit-tray-pair { display: flex; gap: var(--mp-space-5); flex-wrap: wrap; }
+    @media (max-width: 560px) { .kit-specimen > div { grid-template-columns: 1fr; gap: var(--mp-space-1); } }
+  </style>
+</head>
+<body>
+  <main class="kit" id="kit"></main>
+  <script type="module">
+    import { backdrop, screenTitle, glassPanel, goldButton, menuItem, iconButton, keyCap, keyHint, statBadge, hudCard, progressBar, starRating, laurelTitle, tabBar, levelTile, objectTray, icon, iconNames, h } from './src/ui/index.js';
+
+    const kit = document.getElementById('kit');
+    let bg = backdrop({ variant: 'warm' });
+    document.body.prepend(bg);
+
+    const section = (title, ...content) => { const s = h('section', {}, screenTitle({ text: title, level: 2 }), ...content); kit.append(s); return s; };
+
+    // ── Header ──
+    kit.append(h('header', {}, h('h1', { class: 'mp-text-display' }, 'Morpheus'),
+      h('p', { class: 'mp-text-body kit-note' }, 'UI kit, Step 1: design tokens, typography and reusable components. Tab through everything to see the gold focus state.')));
+
+    // ── Color tokens ──
+    const tokens = ['bg-0', 'bg-1', 'bg-2', 'bg-3', 'bronze-dim', 'bronze', 'gold', 'gold-bright', 'parchment', 'tan', 'tan-dim', 'teal', 'teal-deep', 'p1', 'p2', 'fail', 'fail-bg', 'fail-text'];
+    const swatches = h('div', { class: 'kit-swatches' });
+    for (const name of tokens) {
+      const hex = getComputedStyle(document.documentElement).getPropertyValue(`--mp-${name}`).trim();
+      swatches.append(h('div', { class: 'kit-swatch' }, h('div', { class: 'kit-chip', style: { background: `var(--mp-${name})` } }), h('span', { class: 'mp-text-caption' }, `--mp-${name}`), h('span', { class: 'mp-text-body' }, hex)));
+    }
+    section('Color tokens', swatches);
+
+    // ── Typography ──
+    const role = (name, cls, sample) => h('div', {}, h('span', { class: 'mp-text-caption' }, name), h('span', { class: cls }, sample));
+    section('Typography', glassPanel({ className: 'kit-specimen', children: [
+      role('Display', 'mp-text-display', 'Morpheus'),
+      role('Title', 'mp-text-title', 'Select difficulty'),
+      role('Label', 'mp-text-label', 'Check shadow'),
+      role('Body', 'mp-text-body', 'A mindful shadow journey, explored at your own pace.'),
+      role('Caption', 'mp-text-caption', 'Objects · Match'),
+      role('Numeral', 'mp-text-numeral', '82%'),
+    ] }));
+
+    // ── Buttons & menu ──
+    let menuIndex = 0;
+    const items = ['Play', 'Levels', 'Achievements', 'Settings', 'Credits', 'Exit'].map((text, i) => menuItem({ label: text, selected: i === 0, onClick: () => { menuIndex = i; items.forEach((m, j) => m.setSelected(j === i)); } }));
+    const pause = iconButton({ iconName: 'pause', label: 'Pause', caption: 'PAUSE', pressed: false, onClick: () => { const on = pause.getAttribute('aria-pressed') !== 'true'; pause.setPressed(on); pause.setIcon(on ? 'play' : 'pause'); pause.setAttribute('aria-label', on ? 'Resume' : 'Pause'); } });
+    section('Buttons, menu items, icon buttons', h('div', { class: 'kit-row' },
+      h('div', { class: 'kit-col' }, ...items),
+      h('div', { class: 'kit-col' }, goldButton({ label: 'Next level' }), goldButton({ label: 'Retry', tone: 'quiet', chevron: false }), goldButton({ label: 'Check shadow', tone: 'teal' }), goldButton({ label: 'Locked', disabled: true })),
+      h('div', { class: 'kit-row' }, iconButton({ iconName: 'reset', label: 'Reset', caption: 'RESET' }), pause)));
+
+    // ── Key caps ──
+    section('Key caps and hints', h('div', { class: 'kit-row' }, keyCap('WASD'), keyCap('Q / E'), keyCap('Tab'), keyCap('Enter'),
+      keyHint({ keys: 'R', text: 'to rotate' }), keyHint({ keys: ['Z', 'Drag'], text: 'height' })));
+
+    // ── HUD cards (live) ──
+    const p1 = hudCard({ player: 'p1', value: 82 }), p2 = hudCard({ player: 'p2', value: 68 });
+    const solo = hudCard({ title: 'TARGET', media: icon('fish', { size: 56 }), value: 76 });
+    const range = (labelText, cb, start) => { const input = h('input', { type: 'range', min: '0', max: '100', value: String(start) }); input.addEventListener('input', () => cb(Number(input.value))); return h('label', { class: 'mp-text-caption' }, labelText, input); };
+    section('HUD cards (display-only; values are demo data)', h('div', { class: 'kit-row' }, solo, p1, p2),
+      h('div', { class: 'kit-controls' }, range('Solo', v => solo.update(v), 76), range('P1', v => p1.update(v), 82), range('P2', v => p2.update(v), 68),
+        goldButton({ label: 'Clear (—)', tone: 'quiet', chevron: false, onClick: () => { solo.update(null); p1.update(null); p2.update(null); } })));
+
+    // ── Progress & stars ──
+    const bar = progressBar({ value: 68, label: 'LOADING' });
+    section('Progress and stars', h('div', { style: { maxWidth: '26rem' } }, bar),
+      h('div', { class: 'kit-controls' }, goldButton({ label: 'Fill to 100%', chevron: false, onClick: () => bar.update(100) }), goldButton({ label: 'Back to 30%', tone: 'quiet', chevron: false, onClick: () => bar.update(30) })),
+      h('div', { class: 'kit-row' }, starRating({ value: 3, max: 3, size: 22 }), starRating({ value: 2, max: 3, size: 22 }), starRating({ value: 4, max: 4, size: 22 }), starRating({ value: 0, max: 3, size: 22 })));
+
+    // ── Tabs ──
+    const tabOut = h('p', { class: 'mp-text-body', role: 'tabpanel', 'aria-live': 'polite' }, 'Controls: Solo');
+    const tabs = tabBar({ tabs: [{ id: 'solo', text: 'Solo' }, { id: 'multi', text: 'Multiplayer' }], active: 'solo', label: 'Control scheme', onChange: id => { tabOut.textContent = `Controls: ${id === 'solo' ? 'Solo' : 'Multiplayer'}`; } });
+    section('Tabs (←/→, Home, End)', tabs, tabOut);
+
+    // ── Level tiles ──
+    section('Level tiles', h('div', { class: 'kit-row' },
+      levelTile({ number: 1, state: 'complete', stars: 3, name: 'Arrow' }), levelTile({ number: 2, state: 'complete', stars: 2, thumb: icon('cone') }),
+      levelTile({ number: 7, state: 'current', stars: 0, name: 'Aquafish' }), levelTile({ number: 8, state: 'available' }), levelTile({ number: 9, state: 'locked' })));
+
+    // ── Object trays ──
+    const objs = [{ id: 'a', label: 'Crescent', iconName: 'crescent' }, { id: 'b', label: 'Cone', iconName: 'cone' }, { id: 'c', label: 'Oval', iconName: 'oval' }];
+    section('Object trays', h('div', { class: 'kit-tray-pair' },
+      objectTray({ items: objs, selected: 1, label: 'Solo objects' }),
+      objectTray({ items: objs, selected: 1, tone: 'p1', title: 'OBJECTS (P1)', label: 'Player 1 objects' }),
+      objectTray({ items: objs, selected: 0, tone: 'p2', title: 'OBJECTS (P2)', label: 'Player 2 objects' })));
+
+    // ── Laurel titles ──
+    section('Laurel titles', laurelTitle({ text: 'Victory' }), laurelTitle({ text: 'Defeat', tone: 'fail', laurels: true }), laurelTitle({ text: 'Puzzle failed', tone: 'fail' }), laurelTitle({ text: 'Draw', tone: 'neutral' }));
+
+    // ── Icons ──
+    section('Icons', h('div', { class: 'kit-row' }, ...iconNames.map(name => h('div', { class: 'kit-col', style: { minWidth: '5rem', justifyItems: 'center', color: 'var(--mp-gold)' } }, icon(name, { size: name === 'laurel' ? 48 : 28 }), h('span', { class: 'mp-text-caption' }, name)))));
+
+    // ── Backdrop switcher ──
+    const select = h('select', { 'aria-label': 'Backdrop variant' }, ...['warm', 'dim', 'fail', 'win'].map(v => h('option', { value: v }, v)));
+    select.addEventListener('change', () => { bg.destroy(); bg = backdrop({ variant: select.value }); document.body.prepend(bg); });
+    section('Backdrop (live behind this page)', h('label', { class: 'mp-text-caption kit-controls' }, 'Variant ', select),
+      h('p', { class: 'mp-text-body kit-note' }, 'Move the pointer: the light shafts and dust shift a few pixels. With "reduce motion" enabled in your OS, parallax, dust, shimmer and pulses are off.'));
+  </script>
+</body>
+</html>

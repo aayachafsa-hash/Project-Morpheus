@@ -1,0 +1,105 @@
+/* MORPHEUS UI — design tokens (Step 1)
+   Visual source of truth: the 34-screen reference sheet.
+   Base values follow the written brief; accent hues were sampled from the sheet.
+   Where the sheet is ambiguous the choice is darker, warmer, calmer.
+   Fonts are NOT imported here: add the <link> from README.md to the page <head>. */
+:root {
+  color-scheme: dark;
+
+  /* ── Color: warm near-black surfaces ── */
+  --mp-bg-0: #0b0806;
+  --mp-bg-1: #120d09;
+  --mp-bg-2: #1c140e;
+  --mp-bg-3: #2a1f16;
+
+  /* ── Color: bronze → gold (structure, borders, highlights) ── */
+  --mp-bronze-dim: #5a4030;
+  --mp-bronze: #8a5f3c;
+  --mp-gold: #d9a96a;
+  --mp-gold-bright: #f0c98a;
+
+  /* ── Color: text ── */
+  --mp-parchment: #e9dcc6;
+  --mp-tan: #b39b7d;       /* secondary text, ≥ 4.5:1 on bg-2 */
+  --mp-tan-dim: #85735e;   /* decorative / disabled only */
+
+  /* ── Color: functional accents ── */
+  --mp-teal: #58c4cf;        /* shadow match, Check Shadow */
+  --mp-teal-deep: #173a40;
+  --mp-p1: #6fcbe6;          /* Player 1 */
+  --mp-p2: #62d28f;          /* Player 2 */
+  --mp-fail: #c9735a;        /* Puzzle Failed, Defeat */
+  --mp-fail-bg: #3a241d;
+  --mp-fail-text: #f1d3c9;
+
+  /* ── Surfaces ── */
+  --mp-panel-bg: linear-gradient(160deg, rgb(42 31 22 / .78), rgb(18 13 9 / .84));
+  --mp-panel-bg-solid: #1a120c;
+  --mp-border: rgb(138 95 60 / .75);        /* 1px bronze hairline */
+  --mp-border-soft: rgb(138 95 60 / .35);
+  --mp-border-strong: var(--mp-gold);
+
+  /* ── Type families ── */
+  --mp-font-display: "Cinzel", "Cormorant SC", "Trajan Pro", Georgia, "Times New Roman", serif;
+  --mp-font-ui: "Jost", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ── Type scale (fluid, 360px → 4K; rem so it scales with the 4K bump below) ── */
+  --mp-fs-display: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem);    /* MORPHEUS, PAUSED, VICTORY */
+  --mp-fs-title: clamp(0.95rem, 0.8rem + 0.6vw, 1.5rem);       /* › PLAY, › SELECT MODE */
+  --mp-fs-label: clamp(0.72rem, 0.66rem + 0.25vw, 0.95rem);    /* menu items, buttons, tabs */
+  --mp-fs-body: clamp(0.82rem, 0.76rem + 0.25vw, 1rem);        /* descriptions, captions */
+  --mp-fs-caption: clamp(0.66rem, 0.62rem + 0.2vw, 0.8rem);    /* MATCH, OBJECTS, hints */
+  --mp-fs-numeral: clamp(1.75rem, 1.2rem + 2vw, 3rem);         /* 82% */
+
+  /* ── Tracking ── */
+  --mp-ls-display: 0.34em;
+  --mp-ls-title: 0.3em;
+  --mp-ls-label: 0.22em;
+  --mp-ls-caption: 0.14em;
+  --mp-ls-body: 0.02em;
+
+  /* ── Weights ── */
+  --mp-fw-display: 400;
+  --mp-fw-label: 500;
+  --mp-fw-body: 400;
+  --mp-fw-light: 300;
+
+  /* ── Spacing (4px base) ── */
+  --mp-space-1: 0.25rem;
+  --mp-space-2: 0.5rem;
+  --mp-space-3: 0.75rem;
+  --mp-space-4: 1rem;
+  --mp-space-5: 1.5rem;
+  --mp-space-6: 2rem;
+  --mp-space-7: 3rem;
+  --mp-space-8: 4rem;
+
+  /* ── Radii (small, never pills) ── */
+  --mp-r-sm: 4px;
+  --mp-r-md: 6px;
+  --mp-r-lg: 8px;
+
+  /* ── Shadows & glows ── */
+  --mp-shadow-panel: 0 12px 32px rgb(0 0 0 / .5);
+  --mp-inner-glow: inset 0 0 28px rgb(217 169 106 / .05);
+  --mp-glow-gold: 0 0 12px rgb(217 169 106 / .32);
+  --mp-glow-teal: 0 0 12px rgb(88 196 207 / .3);
+  --mp-glow-p1: 0 0 14px rgb(111 203 230 / .28);
+  --mp-glow-p2: 0 0 14px rgb(98 210 143 / .28);
+  --mp-text-glow: 0 0 22px rgb(217 169 106 / .28);
+
+  /* ── Motion ── */
+  --mp-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --mp-dur-hover: 300ms;
+  --mp-dur-screen: 750ms;
+
+  /* ── Focus ── */
+  --mp-focus-ring: 2px solid var(--mp-gold-bright);
+  --mp-focus-offset: 3px;
+
+  /* ── Touch target ── */
+  --mp-hit: 2.75rem;
+}
+
+@media (min-width: 2560px) { :root { font-size: 125%; } }
+@media (min-width: 3400px) { :root { font-size: 150%; } }
