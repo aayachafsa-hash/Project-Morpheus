@@ -1,113 +1,73 @@
-# Morpheus
+# Morpheus / Aquafish shadow puzzle
 
-Jeu de puzzle 3D dans le navigateur, inspiré de Shadowmatic : le joueur déplace et fait tourner un objet devant une lumière pour que **son ombre sur le mur** reproduise une silhouette cible.
+Plain HTML, CSS and Three.js ES modules. No build step. To run the prototype and gallery together, open PowerShell in the parent folder, `Projet-Morpheus`, and run:
 
-Projet réalisé en trinôme dans le cadre du module WebGL. Technologies : HTML, CSS, JavaScript (modules ES) et [Three.js](https://threejs.org/) (WebGL). Aucune étape de build.
+```powershell
+py -m http.server 8001 --bind 127.0.0.1
+```
 
-## Lancer le projet
+- Prototype at [http://localhost:8001/morpheus-prototype/](http://localhost:8001/morpheus-prototype/)
+- Gallery at [http://localhost:8001/shadowmatic-gallery/gallery.html](http://localhost:8001/shadowmatic-gallery/gallery.html)
 
-Le projet utilise des modules ES et charge des fichiers `.glb` : il faut le servir via un serveur local (ouvrir `index.html` directement ne fonctionne pas).
+**Explore Shadowmatic meshes** opens the gallery in a new tab so the puzzle stays open. The gallery can also run on its own. From `shadowmatic-gallery`, run `py -m http.server 8002 --bind 127.0.0.1` and open [http://localhost:8002/gallery.html](http://localhost:8002/gallery.html). Both apps load Three.js from jsDelivr.
 
-**Avec VS Code** : installer l'extension *Live Server*, puis clic droit sur `index.html` > *Open with Live Server* (port 5502 configuré dans `.vscode/settings.json`).
+Move and rotate Aquafish until its shadow matches the target. Drag to move, scroll for depth, tap **R** to toggle rotation, or press **Z** and drag to change height. Shift-drag tilts, and Escape returns to move mode. Use **W A S D** to move, **Q / E** to rotate around the axis selected with **T**, and hold **R / F** to raise or lower the piece. **Check Shadow** refreshes the live match, **Show solution** demonstrates the target pose, and **Reset** starts a new attempt.
 
-**Avec Python** :
+### Aquafish reference and scoring
 
-```bash
+The target card uses the Fish tile in Shadowmatic's `Textures/mapLevel/sil_atlas.pvr` from the supplied Android package. The original `02. aquaFish.trsc` scene uses `Meshes/aquafish.trmesh`, the source of the Aquafish GLB already used here. Morpheus fits the solution pose to the atlas profile within the projector's lit area. It renders that pose to generate the scoring mask and wall outline. The target card falls back to the rendered silhouette if the image is unavailable.
+
+Shadowmatic's English help describes six proximity lights, a silhouette reveal, and a directional assistant. Its Android library exposes goal, percentage, finishing, and assistance routines. Morpheus implements corresponding feedback using fixed wall-space shadow masks. Intersection-over-union gives half credit to an unmatched pixel next to the other mask. A match of 85% reveals the outline and unlocks the assistant. A settled match of at least 92% for half a second completes the puzzle and lights the sixth dot. These values are Morpheus settings in `src/config.js`.
+
+**Assist** is also available after 30 seconds of active play. Each press moves the piece partway toward the solution, with an angular step of up to 30 degrees and a small translation, subject to the plate bounds. Assisted completion is indicated in the result.
+
+## Modules
+
+- **Person 1** owns `src/scene/`, including rendering, lights, the environment, and model loading.
+- **Person 2** owns `src/gameplay/`, including object controls, shadow capture, scoring, and the puzzle poses.
+- **Person 3** owns `src/ui/`, including the action buttons, HUD, and styles.
+- `src/main.js` starts and connects the three areas. `src/config.js` holds shared settings.
+- `src/assets/models/` contains the existing GLB files. The current surface textures are generated in `src/scene/Environment.js`.
+
+## Earlier house study notes
+
+<details>
+<summary>Original house study documentation</summary>
+
+Plain HTML, CSS and Three.js ES modules. No build step. Run in this folder:
+
+```powershell
 python -m http.server 8001
 ```
 
-Puis ouvrir http://localhost:8001.
+Open http://localhost:8001. Internet is needed for the pinned Three.js CDN and optional Inter font.
 
-Une connexion Internet est nécessaire : Three.js (v0.170.0) est chargé depuis un CDN, ainsi que la police Inter.
+## Goal
 
-## Principe du jeu
+Combine the real shadows of Body, Roof and Chimney into a recognizable house. The pieces are solid tapered blocks and a triangular roof prism, built by inverse projection from wall-space house polygons. This compensates for the oblique spotlight: the solved arrangement produces straight house walls, a pitched roof and a chimney. MATCH still compares the actual wall-shadow buffer with an achievable target mask; the target appears only in the HUD.
 
-1. Une `SpotLight` éclaire la scène et projette l'ombre de l'objet sur le mur du fond.
-2. Le joueur déplace et oriente l'objet (position, profondeur, hauteur, rotation).
-3. La vignette « Target » à gauche montre la silhouette à reproduire.
-4. Le score **MATCH** compare l'ombre réelle avec l'ombre cible.
-5. À 95 % ou plus, la cible est considérée comme atteinte.
+Show house moves the pieces into the solution, using the same damped transforms as manual movement. Reset restores the scrambled starting arrangement.
 
-### Comment le score est calculé
+## Controls
 
-L'ombre n'est pas simulée : on utilise l'ombre réellement rendue par le GPU.
+- 1 / 2 / 3, click a mesh, or select its HUD slot.
+- Drag: move across the table plane, keeping the chosen height.
+- Z: toggle vertical movement; drag upward to raise, downward to lower. Escape returns to normal movement.
+- Height slider: independently raise/lower the selected piece above or below the other pieces. Height zero rests on the table. Pieces may overlap, allowing free shadow composition; there is no stacking physics or collision simulation.
+- Scroll or Depth slider: move toward/away from the wall.
+- R: toggle horizontal rotation. Shift-drag: tilt. X/Y/Z rotation sliders give precise orientation control.
+- Pause freezes transforms and disables sliders. Reset resumes and re-enables controls.
 
-- Un rendu hors écran du mur (avec un `ShadowMaterial`, tout le reste étant masqué) donne un masque noir et blanc de 192×96 pixels.
-- Le masque cible est produit de la même façon, en plaçant l'objet dans sa pose « solution » définie dans `CONFIG.solution`.
-- Le score est l'**IoU** (intersection sur union) entre les deux masques, en pourcentage.
-- La comparaison porte sur tout le rectangle du mur : translater l'objet ou changer sa profondeur modifie donc bien le score.
+Height is Three.js Y (its vertical axis). The user-facing controls call it Height to avoid confusion with depth (Three.js Z).
 
-## Contrôles
+## Settings
 
-| Action | Commande |
-| --- | --- |
-| Sélectionner un objet | Clic sur l'objet, touche `1`, ou emplacement dans la barre « Objects » |
-| Déplacer sur la table | Glisser avec la souris |
-| Rotation horizontale | Touche `R`, puis glisser |
-| Incliner | `Maj` + glisser |
-| Monter / descendre | Touche `Z`, puis glisser verticalement |
-| Profondeur (distance au mur) | Molette ou slider « Depth » |
-| Réglage précis | Sliders Height, Depth et rotation X / Y / Z |
-| Quitter un mode | `Échap` |
+All settings are in CONFIG at the top of main.js. CONFIG.light controls spotlight position, target, color, intensity, angle and penumbra. CONFIG.fill and CONFIG.rim control dim fill. CONFIG.shadow controls map resolution and bias; CONFIG.rendering.exposure controls overall exposure. PCFSoftShadowMap is retained; spotlight penumbra changes the beam edge, not physical shadow softness.
 
-Boutons de l'interface :
+CONFIG.house.polygons defines the house outline in wall coordinates. The geometry and solution are derived from these polygons and the configured light position. Reload after changing these settings. CONFIG.movement.maxHeight sets the height-slider limit. CONFIG.initial defines the starting arrangement, including each piece's clearance above the table.
 
-- **Reset** : remet l'objet dans sa position de départ.
-- **Pause** : fige les transformations et désactive les sliders.
-- **Check Shadow** : calcule immédiatement le score.
-- **Show solution** : déplace l'objet vers la solution.
+## Validation for this revision
 
-Dans le code, la hauteur correspond à l'axe Y de Three.js et la profondeur à l'axe Z. L'interface parle de « Height » pour éviter la confusion.
+JavaScript syntax check passed. Numerical checks confirmed that every generated solid vertex projects onto its intended house polygon (maximum error below 2e-15), the solution positions/heights are reachable, and static UI bindings exist. Browser rendering and interaction have not been verified for this revision because browser access was unavailable in the preceding attempt. Earlier prototype browser results do not validate this revision.
 
-## État actuel du prototype
-
-- Un niveau jouable : le poisson **Aquafish** (`assets/aquafish.glb`).
-- Une sculpture d'avion (`assets/airplane1.glb`) est affichée sur un socle comme décor. Ce n'est pas une pièce jouable et elle est masquée pendant le calcul du score.
-- Pas encore de gestion de plusieurs niveaux, d'écran de victoire ni d'indices progressifs.
-- Le comportement dans le navigateur doit être revérifié après chaque modification importante.
-
-## Configuration
-
-Tous les réglages sont dans l'objet `CONFIG` (fichier `src/config.js` après découpage, en haut de `main.js` avant) :
-
-- `light` : position, cible, couleur, intensité, angle et pénombre du spot.
-- `shadow` : résolution de la shadow map et biais.
-- `movement` : limites de déplacement, vitesse, amortissement.
-- `scoring` : taille du masque, intervalle de calcul, seuil, zone du mur analysée.
-- `puzzle`, `solution`, `initial` : modèle, pose solution et pose de départ.
-
-Recharger la page après toute modification.
-
-## Architecture visée
-
-Le dépôt est organisé en modules, un par domaine de responsabilité :
-
-```
-morpheus-prototype/
-├── index.html
-├── style.css
-├── README.md
-├── assets/
-│   ├── aquafish.glb
-│   └── airplane1.glb
-└── src/
-    ├── main.js            # assemblage des modules et boucle d'animation
-    ├── config.js          # CONFIG
-    ├── scene/             # Personne 1 : scène, lumières, matériaux, chargement
-    ├── gameplay/          # Personne 2 : contrôles, système d'ombre, validation, niveaux
-    └── ui/                # Personne 3 : menus, HUD, paramètres
-```
-
-## Répartition de l'équipe
-
-| Rôle | Responsabilités | Membre |
-| --- | --- | --- |
-| Scène 3D et rendu | Environnement, assets Blender/GLB, lumières, matériaux, ombres, performances | _À compléter_ |
-| Mécaniques de jeu | Manipulation des objets, système d'ombre, validation, niveaux, indices | _À compléter_ |
-| Interface et intégration | Écran d'accueil, menus, HUD, états du jeu, déploiement | _À compléter_ |
-
-## Organisation Git
-
-- `main` : version stable, modifiée uniquement par pull request.
-- `feature/scene`, `feature/gameplay`, `feature/ui` : une branche par personne.
-- Intégrer souvent, par petits changements, plutôt qu'à la fin du projet.
+</details>
