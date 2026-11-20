@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Step 3 suite (browser)</title>
+<link rel="stylesheet" href="../src/ui/tokens.css"><link rel="stylesheet" href="../src/ui/ui.css">
+<link rel="stylesheet" href="../src/ui/screens/screens.css"><link rel="stylesheet" href="../src/ui/game-screens/game-screens.css">
+</head><body>
+<script type="module">
+  import { runSuite } from './game-screens.suite.mjs';
+  const lines = [];
+  window.__result = await runSuite({ layout: true, log: line => lines.push(line) });
+  window.__lines = lines; window.__done = true;
+</script></body></html>

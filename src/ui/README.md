@@ -175,3 +175,79 @@ The manager owns **one** `backdrop()` (no duplicate SVG ids). The screen's `back
 - Focus is restored for overlays and for persistent screens. A non-persistent screen re-entered with `back()` focuses its `initialFocus`, not the previous control.
 - `params` are stored by reference in history; pass plain data.
 - jsdom does not implement `inert`; tests assert the attribute, and real browsers enforce it.
+
+---
+
+# Step 3: the individual game screens
+
+`src/ui/game-screens/` holds the six screens (boot, main menu, level select, settings, pause, results) as plain definitions for the Step 2 screen manager, built only from Step 1 components. It never reads gameplay state, never decides a score, a star count or a next level, and is not wired into `index.html` / `main.js` yet (Step 4). Link `src/ui/game-screens/game-screens.css` after `screens.css`. Demo: `game-screens-demo.html`.
+
+```js
+import { createScreenManager } from './src/ui/index.js';
+import { registerGameScreens, createSettingsStore } from './src/ui/game-screens/index.js';
+const settings = createSettingsStore({ storage: localStorage });          // storage is optional
+const ui = createScreenManager({ reducedMotion: settings.reducedMotion }); // the Display > Reduce motion setting reaches the manager
+registerGameScreens(ui, { settings, levels, progress, load, callbacks });
+ui.register(gameScreen);   // Step 4: id 'game' (the id is configurable with `ids`)
+ui.go('boot');
+```
+
+| File | Purpose |
+|---|---|
+| `boot.js`, `main-menu.js`, `level-select.js`, `settings.js`, `pause.js`, `results.js` | One screen each. **Presentation only**: they render and call the `actions` they are given; none of them imports or calls the manager |
+| `index.js` | The wiring: turns each screen's actions into `ui.go / open / close / back` calls plus the integration callbacks. `registerGameScreens`, `createGameScreens`, `DEFAULT_IDS` |
+| `settings-store.js` | Pure settings model: schema, validation (clamp/snap/ignore invalid), `subscribe`, optional persistence. The settings screen is rendered from its schema |
+| `levels.js` | Pure `resolveLevels(levels, progress)`: which levels are complete / current / available / locked |
+| `controls.js`, `keynav.js` | Slider, switch and radio-group controls (the kit has none) and arrow-key focus helpers |
+| `game-screens.css` | Layouts and the new controls. Tokens only, `.mp-gs-` prefixed |
+
+## Navigation graph (`to` lists)
+
+| Screen | Presentation | May go / open to |
+|---|---|---|
+| `boot` | screen, `history:false` | `main-menu` (replace) |
+| `main-menu` | screen, Escape disabled | `level-select`, `settings` |
+| `level-select` | screen | `main-menu`, `game` |
+| `settings` | screen **and** overlay (two separate instances) | `main-menu` (fallback when opened with no history) |
+| `pause` | overlay | `settings`, `main-menu` |
+| `results` | screen, `history:false` | `game`, `level-select`, `main-menu` |
+
+`game` is named in `to` lists but **not registered by Step 3**: `ui.validate()` reports it until Step 4 registers the gameplay screen. The demo registers a stand-in.
+
+## Integration points (all deliberately deferred to Step 4)
+
+`registerGameScreens(ui, options)`:
+
+| Option | Meaning |
+|---|---|
+| `settings` | A `createSettingsStore()`. Apply values to the game with `settings.subscribe(({ key, value }) => ...)`. Keys: `masterVolume`, `musicVolume`, `effectsVolume`, `muted`, `quality` (low/medium/high), `reduceMotion`, `controlHints`, `sensitivity`. The store only stores: nothing in the game reads it yet |
+| `levels` | `array \| () => array` of `{ id, name?, iconName? }`. Default: the prototype's single level (`aquafish`) |
+| `progress` | `object \| () => object`: `{ completed: { [id]: stars }, unlocked?: id[], unlockAll? }`. Read on every visit to level select |
+| `load` | `async ({ progress(percent, message?) }) => void`. Boot waits for it (and `minBootMs`, default 1400) then goes to the main menu. A rejection shows a Retry button and calls `onBootError` |
+| `callbacks` | Called **before** the navigation they belong to; returning exactly `false` cancels it; a throw is reported through `warn` and ignored. `onBootComplete()`, `onBootError(error)`, `onSelectLevel(level)`, `onResume()`, `onRestart()`, `onQuitToMenu()`, `onRetry(params)`, `onNextLevel(params)` |
+
+Screen contracts the gameplay side must honour:
+
+- **Gameplay screen**: register as `game` with `keys: 'passthrough'`, `history: false`, `backdrop: false`, `to: ['pause', 'results']`. Level select and results start it with `ui.go('game', { level: id })`. Open pause with `ui.open('pause', { levelName? })`; finish with `ui.go('results', params)`.
+- **Pausing the game while the overlay is open** is the bridge's job (`onResume`, `onRestart`, or `ui.subscribe`). Restart closes the overlay and calls `onRestart`; it does not re-enter the gameplay screen.
+- **Results params**: `{ outcome: 'success' | 'failure', level, levelName?, score?, target?, stars?, nextLevel? }`. Only `outcome: 'success'` counts as success. Missing fields are not rendered; the Next level button exists only when `nextLevel` is given. Score, stars and the next level come from the caller.
+
+## Accessibility and motion
+
+Semantic landmarks and headings, one named `section` per screen, `role="dialog" aria-modal` on overlays, `role="switch"` / `radiogroup` / native sliders with visible values, arrow-key navigation in menus, the level grid and choices, focus placed on the primary control of each screen, locked levels focusable but `aria-disabled` with a spoken reason. Reduced motion follows the OS and the Display > Reduce motion setting: transitions become instant, and the Step 3 animations stop (through a `data-mp-reduce-motion` attribute `registerGameScreens` sets on the stage).
+
+## Tests
+
+| Command | What it runs |
+|---|---|
+| `node tests/game-screens.test.mjs` | The Step 3 suite in jsdom (`npm i jsdom` once, like the Step 1/2 tests) |
+| `node tests/game-screens.browser.mjs` | The **same** suite in real Chromium, plus a real-keyboard walk-through of the demo that fails on any console error. Needs `npm i -D playwright && npx playwright install chromium` |
+
+`tests/game-screens.suite.mjs` holds the cases; one of them needs real layout (grid Up/Down) and is skipped under jsdom.
+
+## Known limitations
+
+- The results backdrop is chosen per definition by the manager, so the failure state sets `data-variant="fail"` on `ui.backdrop` itself when it is entered (every later navigation re-applies its own variant). Cleaner support would be a Step 2 change (backdrop as a function of params).
+- A forced reduced motion (the Display setting) stops the manager's transitions and the Step 3 animations; the Step 1 ambient animations (dust, shimmer) follow only the OS setting, because `ui.css` is not touched in this step.
+- `quality`, `sensitivity`, `controlHints` and the three volumes are only settings values: nothing applies them until Step 4.
+- The `game` screen in the demo is a stand-in for the demo only; the real one is Step 4.
