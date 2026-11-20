@@ -251,3 +251,36 @@ Semantic landmarks and headings, one named `section` per screen, `role="dialog" 
 - A forced reduced motion (the Display setting) stops the manager's transitions and the Step 3 animations; the Step 1 ambient animations (dust, shimmer) follow only the OS setting, because `ui.css` is not touched in this step.
 - `quality`, `sensitivity`, `controlHints` and the three volumes are only settings values: nothing applies them until Step 4.
 - The `game` screen in the demo is a stand-in for the demo only; the real one is Step 4.
+
+---
+
+# Step 4.1: gameplay HUD (visual layer)
+
+`src/ui/gameplay-hud/` is the visual layer of the solo gameplay HUD, built only from Step 1 components (`screenTitle`, `hudCard`, `iconButton`, `goldButton`, `keyHint`) and tokens. It is **display-only**: it renders what it is given and calls the callbacks it is given. It does not read the Three.js scene or gameplay state, does not compute a match, score or threshold, does not listen to the keyboard (R / Shift / Z / wheel belong to the gameplay; the hints are text), does not call the screen manager, and is **not wired into `index.html` / `main.js`** (that is Step 4.2). Link `gameplay-hud.css` after `tokens.css` and `ui.css`. Demo: `gameplay-hud-demo.html`.
+
+```js
+import { gameplayHud } from './src/ui/gameplay-hud/index.js';
+const hud = gameplayHud({ levelNumber: 3, levelName: 'Aquafish', onPause, onReset, onCheckShadow, onShowSolution });
+container.append(hud);                  // fills its container; transparent to the pointer except its four buttons
+hud.setMatch(82, { state: 'close' });   // value 0–100 | null, state: idle | checking | close | match | miss
+```
+
+| File | Purpose |
+|---|---|
+| `gameplay-hud/gameplay-hud.js` | `gameplayHud(options)`, `CONTROL_HINTS`, `MATCH_STATES`, `DEFAULT_MESSAGES` |
+| `gameplay-hud/gameplay-hud.css` | Layout and states. Tokens only, `.mp-ghud-` prefixed, container-query responsive |
+| `gameplay-hud/index.js` | Single import point |
+| `gameplay-hud-demo.html` / `.js` | Standalone preview with a stand-in viewport (no Three.js) and an inspector |
+| `tests/gameplay-hud.test.mjs` | 38 jsdom checks: rendering, structure, accessibility attributes, boundaries |
+
+**Layout.** Top-left: level (`› LEVEL 03` + name). Top-centre: shadow match card (value, meter, one status line). Top-right: Reset and Pause. Bottom-left: control hints (Drag Move, R Rotate, Shift Tilt, Z Height, Wheel Depth). Bottom-right: Check Shadow (teal) and Show Solution (quiet). The centre is an empty slot. Under 44rem wide the match card drops to its own row, hints sit above a two-button action row; under 30rem high the card and hints compact. These breakpoints follow the HUD's own size, not the window's.
+
+**Methods.** `setLevel({ number, name })`, `setMatch(value, { state?, message? })`, `setDisabled('pause' | 'reset' | 'check' | 'solution', disabled?)`, `setHintsVisible(visible)` (bind it to the existing `controlHints` setting in Step 4.2), `setActiveControl(id | null)` (highlights a hint; optional), `destroy()`. Disabled buttons use `aria-disabled` (still focusable) and ignore clicks.
+
+**Accessibility.** Native buttons with accessible names, tab order reset → pause → check → solution, the kit's gold focus ring, `role="meter"` for the match, a polite `role="status"` line that is only rewritten when its text changes (the value `<output>` is set to `aria-live="off"` so dragging does not flood a screen reader), forced-colors and reduced-motion rules (OS setting or a `data-mp-reduce-motion="true"` ancestor).
+
+**For Step 4.2.** Register the gameplay screen as `keys: 'passthrough'` (see Step 3) and append the HUD to its element. The HUD already leaves the canvas receiving pointer input everywhere except its buttons. Which state to show and when to disable a button is the bridge's decision.
+
+## Tests
+
+`node tests/gameplay-hud.test.mjs` (jsdom, `npm i jsdom` once). jsdom has no layout: responsive layout and the real focus ring are covered by the demo page, not by this file.

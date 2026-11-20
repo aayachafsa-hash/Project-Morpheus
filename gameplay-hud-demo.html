@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MORPHEUS / Gameplay HUD demo (Step 4.1)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/ui/tokens.css">
+  <link rel="stylesheet" href="./src/ui/ui.css">
+  <link rel="stylesheet" href="./src/ui/gameplay-hud/gameplay-hud.css">
+  <style>
+    /* Page-only styles for this demo (demo-*). Not part of the UI kit. */
+    html { background: var(--mp-bg-0); }
+    body { margin: 0; min-height: 100vh; display: flex; font-family: var(--mp-font-ui); color: var(--mp-parchment); }
+    .demo-stage { flex: 1; min-width: 0; height: 100vh; display: grid; place-items: center; padding: var(--mp-space-2); }
+    /* Stand-in for the Three.js canvas: a dark room with a faint target silhouette frame. There is NO scene here. */
+    .demo-viewport { position: relative; overflow: hidden; width: 100%; height: 100%; background: radial-gradient(90% 70% at 50% 40%, #3b2a1d 0%, #14100c 70%); }
+    .demo-viewport[data-frame]:not([data-frame="full"]) { outline: 1px solid var(--mp-border-soft); }
+    .demo-viewport__centre { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    .demo-viewport__centre span { padding: var(--mp-space-4) var(--mp-space-6); border: 1px dashed var(--mp-border-soft); border-radius: var(--mp-r-md); color: var(--mp-tan-dim); font: var(--mp-fw-label) var(--mp-fs-caption) var(--mp-font-ui); letter-spacing: var(--mp-ls-label); text-transform: uppercase; }
+    .demo-inspector { flex: none; width: 19rem; height: 100vh; overflow: auto; padding: var(--mp-space-3); background: rgb(10 8 6 / .92); border-inline-start: 1px solid var(--mp-border-soft); font-size: .78rem; line-height: 1.5; }
+    .demo-inspector:not([open]) { width: auto; height: auto; align-self: flex-start; }
+    @media (max-width: 900px) { body { flex-direction: column; } .demo-stage { height: 72vh; flex: none; } .demo-inspector { width: auto; height: auto; border-inline-start: 0; border-top: 1px solid var(--mp-border-soft); } }
+    .demo-inspector > summary { cursor: pointer; font: 500 .72rem var(--mp-font-ui); letter-spacing: .2em; color: var(--mp-tan); }
+    .demo-inspector > div { display: grid; gap: var(--mp-space-2); margin-top: var(--mp-space-2); }
+    .demo-inspector h2 { margin: var(--mp-space-2) 0 0; font: 500 .72rem var(--mp-font-ui); letter-spacing: .2em; color: var(--mp-tan); }
+    .demo-inspector button, .demo-inspector select, .demo-inspector input[type="number"] { font: inherit; color: var(--mp-parchment); background: #1c1510; border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-sm); padding: .3rem .6rem; cursor: pointer; }
+    .demo-inspector button[aria-pressed="true"] { border-color: var(--mp-gold); }
+    .demo-inspector input[type="range"] { width: 100%; accent-color: var(--mp-gold); }
+    .demo-inspector :is(button, select, input, summary):focus-visible { outline: var(--mp-focus-ring); outline-offset: 2px; }
+    .demo-row { display: flex; gap: var(--mp-space-2); flex-wrap: wrap; align-items: center; }
+    .demo-log { margin: 0; padding: 0; list-style: none; max-height: 7rem; overflow: auto; color: var(--mp-tan); font-family: ui-monospace, monospace; font-size: .7rem; }
+  </style>
+</head>
+<body>
+  <main class="demo-stage">
+    <div class="demo-viewport" id="viewport" data-frame="full" role="region" aria-label="Gameplay HUD preview">
+      <div class="demo-viewport__centre"><span>3D viewport (stand-in)</span></div>
+    </div>
+  </main>
+  <details class="demo-inspector" open>
+    <summary>STEP 4.1 INSPECTOR</summary>
+    <div>
+      <h2>FRAME (HUD adapts to its own size)</h2>
+      <div class="demo-row" id="frames" role="group" aria-label="Preview frame size"></div>
+      <h2>MATCH FEEDBACK (display values only)</h2>
+      <label class="demo-row">Value <input type="range" id="match" min="0" max="100" value="62" aria-label="Match value"> <output id="match-out">62%</output></label>
+      <div class="demo-row" id="states" role="group" aria-label="Feedback state"></div>
+      <div class="demo-row"><button type="button" id="match-clear">No value (—)</button></div>
+      <h2>LEVEL</h2>
+      <label class="demo-row">Number <input type="number" id="level-number" min="1" max="99" value="3"></label>
+      <h2>BUTTONS / HINTS</h2>
+      <div class="demo-row" id="toggles" role="group" aria-label="Disable buttons"></div>
+      <div class="demo-row"><button type="button" id="hints" aria-pressed="true">Control hints</button></div>
+      <div class="demo-row" id="active" role="group" aria-label="Highlight a control hint"></div>
+      <label class="demo-row"><input type="checkbox" id="reduced"> reduce motion (Display setting)</label>
+      <h2>CALLBACK LOG</h2>
+      <ol class="demo-log" id="log" aria-label="Callback log"></ol>
+    </div>
+  </details>
+  <script type="module" src="./gameplay-hud-demo.js"></script>
+</body>
+</html>

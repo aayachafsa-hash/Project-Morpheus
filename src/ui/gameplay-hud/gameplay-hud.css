@@ -1,0 +1,95 @@
+/* MORPHEUS UI, Step 4.1: layout and states of the solo gameplay HUD.
+   Needs tokens.css and ui.css (link this file after them). Tokens only, every class is .mp-ghud- prefixed.
+   The HUD fills its container but is transparent to the pointer: only the four buttons catch events, so the 3D
+   canvas underneath keeps receiving drag, wheel and key input everywhere else.
+   Layout reacts to the HUD's own size (container queries), not the window's, so it also adapts inside any frame. */
+
+.mp-ghud { position: absolute; inset: 0; pointer-events: none; container: mp-ghud / size; color: var(--mp-parchment); }
+.mp-ghud__frame {
+  position: absolute; inset: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--mp-space-4);
+  padding: max(var(--mp-space-4), env(safe-area-inset-top)) max(var(--mp-space-5), env(safe-area-inset-right)) max(var(--mp-space-4), env(safe-area-inset-bottom)) max(var(--mp-space-5), env(safe-area-inset-left));
+}
+.mp-ghud__viewport { min-height: 0; } /* the unobstructed centre */
+.mp-ghud :is(.mp-btn, .mp-icon-btn) { pointer-events: auto; }
+
+/* ───────── Header: level · match · reset/pause ───────── */
+.mp-ghud__header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "level match tools"; align-items: start; gap: var(--mp-space-4); }
+.mp-ghud__level { grid-area: level; justify-self: start; display: grid; gap: var(--mp-space-1); min-width: 0; text-shadow: 0 1px 8px rgb(0 0 0 / .6); }
+.mp-ghud__level .mp-screen-title { font-size: var(--mp-fs-title); }
+.mp-ghud__level-name { margin: 0; padding-inline-start: calc(1rem + var(--mp-space-3)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mp-ghud__toolbar { grid-area: tools; justify-self: end; display: flex; gap: var(--mp-space-4); }
+
+/* ───────── Shadow match feedback ───────── */
+.mp-ghud__match { grid-area: match; --tone: var(--mp-tan); --meter: linear-gradient(90deg, var(--mp-teal-deep), var(--mp-teal)); min-width: 12rem; gap: var(--mp-space-2); padding: var(--mp-space-3); }
+.mp-ghud__match .mp-hud-card__head { font-size: var(--mp-fs-caption); color: var(--mp-tan); }
+.mp-ghud__match .mp-hud-card__body { display: grid; gap: var(--mp-space-2); padding: var(--mp-space-2) var(--mp-space-3); }
+.mp-ghud__match .mp-stat { flex-direction: row; align-items: baseline; justify-content: space-between; gap: var(--mp-space-3); }
+.mp-ghud__match .mp-stat__value { font-size: clamp(1.25rem, 1rem + 1vw, 1.9rem); }
+.mp-ghud__meter { position: relative; height: 0.3rem; overflow: hidden; border-radius: 1px; background: rgb(233 220 198 / .12); box-shadow: inset 0 0 0 1px var(--mp-border-soft); }
+.mp-ghud__meter-fill { position: absolute; inset: 0 auto 0 0; width: calc(var(--mp-ghud-match, 0) * 1%); background: var(--meter); transition: width 300ms var(--mp-ease), background var(--mp-dur-hover) var(--mp-ease); }
+.mp-ghud__status { display: flex; align-items: center; gap: var(--mp-space-2); margin: 0; min-height: 1.3em; font: var(--mp-fw-body) var(--mp-fs-caption) / 1.3 var(--mp-font-ui); letter-spacing: var(--mp-ls-body); color: var(--tone); }
+.mp-ghud__status-icon { display: inline-flex; }
+.mp-ghud__status-icon[hidden] { display: none; }
+.mp-ghud__status-icon .mp-icon { width: 0.9rem; height: 0.9rem; }
+
+.mp-ghud__match[data-state="checking"] { --tone: #bdeff3; }
+.mp-ghud__match[data-state="checking"] .mp-ghud__meter-fill { animation: mp-ghud-pulse 1.4s ease-in-out infinite; }
+.mp-ghud__match[data-state="close"] { --tone: var(--mp-gold-bright); --meter: linear-gradient(90deg, var(--mp-bronze), var(--mp-gold)); }
+.mp-ghud__match[data-state="match"] { --tone: #bdeff3; --meter: linear-gradient(90deg, var(--mp-teal), #8be0e8); border-color: var(--mp-teal); box-shadow: var(--mp-shadow-panel), var(--mp-inner-glow), var(--mp-glow-teal); }
+.mp-ghud__match[data-state="miss"] { --tone: var(--mp-fail-text); --meter: linear-gradient(90deg, var(--mp-fail-bg), var(--mp-fail)); border-color: rgb(201 115 90 / .6); }
+@keyframes mp-ghud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ───────── Footer: control hints · actions ───────── */
+.mp-ghud__footer { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--mp-space-3) var(--mp-space-5); }
+.mp-ghud__hints {
+  list-style: none; margin: 0; display: flex; flex-wrap: wrap; gap: var(--mp-space-2) var(--mp-space-4); max-width: 36rem; padding: var(--mp-space-2) var(--mp-space-3);
+  background: rgb(18 13 9 / .6); border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-md);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.mp-ghud__hints[hidden] { display: none; }
+.mp-ghud__hint .mp-key-hint { white-space: nowrap; }
+.mp-ghud__mouse { border-color: var(--mp-border-soft); color: var(--mp-tan); }
+.mp-ghud__hint[data-active="true"] { color: var(--mp-parchment); }
+.mp-ghud__hint[data-active="true"] .mp-key { border-color: var(--mp-gold); color: var(--mp-gold-bright); box-shadow: var(--mp-glow-gold); }
+.mp-ghud__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--mp-space-3); margin-inline-start: auto; }
+.mp-ghud__actions .mp-btn { justify-content: center; min-width: 10rem; }
+.mp-ghud .mp-icon-btn[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+
+/* ───────── Narrow containers (phones, portrait tablets) ───────── */
+@container mp-ghud (max-width: 44rem) {
+  .mp-ghud__frame { padding-inline: max(var(--mp-space-3), env(safe-area-inset-left)) max(var(--mp-space-3), env(safe-area-inset-right)); }
+  .mp-ghud__header { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "level tools" "match match"; }
+  .mp-ghud__toolbar { gap: var(--mp-space-3); }
+  .mp-ghud__match { justify-self: center; width: min(100%, 20rem); }
+  .mp-ghud__match .mp-hud-card__head { display: none; }
+  .mp-ghud__footer { flex-direction: column; align-items: stretch; }
+  .mp-ghud__hints { justify-content: center; max-width: none; gap: var(--mp-space-1) var(--mp-space-3); }
+  .mp-ghud__actions { display: grid; grid-template-columns: 1fr 1fr; margin-inline-start: 0; }
+  .mp-ghud__actions .mp-btn { min-width: 0; padding-inline: var(--mp-space-2); letter-spacing: var(--mp-ls-caption); white-space: nowrap; }
+}
+
+/* ───────── Short containers (landscape phones): keep the centre as free as possible ───────── */
+@container mp-ghud (max-height: 30rem) {
+  .mp-ghud__frame { gap: var(--mp-space-2); padding-block: var(--mp-space-3); }
+  .mp-ghud__match .mp-hud-card__head { display: none; }
+  .mp-ghud__match { padding: var(--mp-space-2); min-width: 11rem; }
+  .mp-ghud__match .mp-stat__value { font-size: 1.25rem; }
+  .mp-ghud__hints { padding: var(--mp-space-1) var(--mp-space-2); }
+  .mp-ghud__level-name { display: none; }
+}
+
+/* ───────── Focus: same ring as the kit; re-asserted here so nothing in this file can cancel it ───────── */
+.mp-ghud .mp-btn:focus-visible, .mp-ghud .mp-icon-btn:focus-visible { outline: var(--mp-focus-ring); outline-offset: var(--mp-focus-offset); }
+
+/* ───────── Reduced motion: the OS setting, or the Display setting (attribute on an ancestor such as .mp-stage) ───────── */
+@media (prefers-reduced-motion: reduce) {
+  .mp-ghud__meter-fill { transition: none; }
+  .mp-ghud__match[data-state="checking"] .mp-ghud__meter-fill { animation: none; }
+}
+[data-mp-reduce-motion="true"] .mp-ghud__meter-fill { transition: none; }
+[data-mp-reduce-motion="true"] .mp-ghud__match[data-state="checking"] .mp-ghud__meter-fill { animation: none; }
+
+@media (forced-colors: active) {
+  .mp-ghud__meter-fill { background: Highlight; }
+  .mp-ghud__hints { border-color: CanvasText; }
+}
