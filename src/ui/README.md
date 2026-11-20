@@ -236,51 +236,55 @@ Screen contracts the gameplay side must honour:
 
 Semantic landmarks and headings, one named `section` per screen, `role="dialog" aria-modal` on overlays, `role="switch"` / `radiogroup` / native sliders with visible values, arrow-key navigation in menus, the level grid and choices, focus placed on the primary control of each screen, locked levels focusable but `aria-disabled` with a spoken reason. Reduced motion follows the OS and the Display > Reduce motion setting: transitions become instant, and the Step 3 animations stop (through a `data-mp-reduce-motion` attribute `registerGameScreens` sets on the stage).
 
-## Tests
+# Step 4.2: gameplay HUD interaction
 
-| Command | What it runs |
+Step 4.2 makes the HUD interactive through a small, mockable interface. **Nothing is wired into `index.html` / `main.js`**, and the HUD still does not pause, reset, validate a shadow or show a solution itself: it calls the functions it is given and displays the state it is told to display. It stays independent of Three.js and the gameplay engine (it imports only the UI kit), adds no document or window listeners, and no key listeners at all.
+
+**Two directions, nothing else.**
+
+| Direction | Interface |
 |---|---|
-| `node tests/game-screens.test.mjs` | The Step 3 suite in jsdom (`npm i jsdom` once, like the Step 1/2 tests) |
-| `node tests/game-screens.browser.mjs` | The **same** suite in real Chromium, plus a real-keyboard walk-through of the demo that fails on any console error. Needs `npm i -D playwright && npx playwright install chromium` |
-
-`tests/game-screens.suite.mjs` holds the cases; one of them needs real layout (grid Up/Down) and is skipped under jsdom.
-
-## Known limitations
-
-- The results backdrop is chosen per definition by the manager, so the failure state sets `data-variant="fail"` on `ui.backdrop` itself when it is entered (every later navigation re-applies its own variant). Cleaner support would be a Step 2 change (backdrop as a function of params).
-- A forced reduced motion (the Display setting) stops the manager's transitions and the Step 3 animations; the Step 1 ambient animations (dust, shimmer) follow only the OS setting, because `ui.css` is not touched in this step.
-- `quality`, `sensitivity`, `controlHints` and the three volumes are only settings values: nothing applies them until Step 4.
-- The `game` screen in the demo is a stand-in for the demo only; the real one is Step 4.
-
----
-
-# Step 4.1: gameplay HUD (visual layer)
-
-`src/ui/gameplay-hud/` is the visual layer of the solo gameplay HUD, built only from Step 1 components (`screenTitle`, `hudCard`, `iconButton`, `goldButton`, `keyHint`) and tokens. It is **display-only**: it renders what it is given and calls the callbacks it is given. It does not read the Three.js scene or gameplay state, does not compute a match, score or threshold, does not listen to the keyboard (R / Shift / Z / wheel belong to the gameplay; the hints are text), does not call the screen manager, and is **not wired into `index.html` / `main.js`** (that is Step 4.2). Link `gameplay-hud.css` after `tokens.css` and `ui.css`. Demo: `gameplay-hud-demo.html`.
+| HUD → gameplay (user pressed a button) | Callbacks: `onPause`, `onReset`, `onCheckShadow`, `onShowSolution` (each gets the click event) |
+| Gameplay → HUD (what to show) | `setMatch`, `setMatchState`, `setActiveControl`, `setHintsVisible`, `setDisabled`, `setLevel` |
 
 ```js
-import { gameplayHud } from './src/ui/gameplay-hud/index.js';
-const hud = gameplayHud({ levelNumber: 3, levelName: 'Aquafish', onPause, onReset, onCheckShadow, onShowSolution });
-container.append(hud);                  // fills its container; transparent to the pointer except its four buttons
-hud.setMatch(82, { state: 'close' });   // value 0–100 | null, state: idle | checking | close | match | miss
+const hud = gameplayHud({ levelNumber: 3, levelName: 'Aquafish', onPause, onReset, onCheckShadow, onShowSolution, onError });
+hud.setHandlers({ onCheckShadow: () => bridge.requestCheck() });  // callbacks can be bound, replaced or removed (null) later
+hud.setMatchState('checking');                                    // idle | checking | close | match | miss
+hud.setMatch(82, { state: 'close', message: 'Almost there' });    // value 0–100 | null, plus optional state / message
+hud.setActiveControl('rotate');                                    // 'drag' | 'rotate' | 'tilt' | 'height' | 'depth' | null
+hud.setHintsVisible(false);
 ```
 
-| File | Purpose |
+**Click handling.** Per button, in this order: a disabled button (`aria-disabled`) ignores the click; a button with no callback (missing, `null`, or not a function) ignores it silently; a click inside the repeat lockout is ignored; otherwise the callback runs with the click event. Accepted clicks are never `preventDefault`ed or stopped.
+
+| Option / method | Behaviour |
 |---|---|
-| `gameplay-hud/gameplay-hud.js` | `gameplayHud(options)`, `CONTROL_HINTS`, `MATCH_STATES`, `DEFAULT_MESSAGES` |
-| `gameplay-hud/gameplay-hud.css` | Layout and states. Tokens only, `.mp-ghud-` prefixed, container-query responsive |
-| `gameplay-hud/index.js` | Single import point |
-| `gameplay-hud-demo.html` / `.js` | Standalone preview with a stand-in viewport (no Three.js) and an inspector |
-| `tests/gameplay-hud.test.mjs` | 38 jsdom checks: rendering, structure, accessibility attributes, boundaries |
+| `repeatGuardMs` (default `DEFAULT_REPEAT_GUARD_MS` = 400, `0` = off) | Per-button lockout after an accepted click. Absorbs double-clicks and the repeat rate of a held Enter key. Different buttons never block each other. A click with no callback does not start it. |
+| Callback returns a promise | The button gets `aria-busy="true"` (and a subtle style) and ignores clicks until the promise settles. It stays focusable. |
+| `onError(error, name)` | Called when a callback throws or its promise rejects; the button is released and the HUD keeps working. Default: `console.error`. A throwing `onError` is swallowed. |
+| `now` | Clock for the lockout, `() => ms`. A test hook; the default is `performance.now`. |
+| `setHandlers({ onPause?, … })` | Changes only the keys given. An unknown key throws a `TypeError` and applies nothing. |
+| `HUD_BUTTONS` | `['pause', 'reset', 'check', 'solution']`, the names accepted by `setDisabled` and found in `data-hud`. |
 
-**Layout.** Top-left: level (`› LEVEL 03` + name). Top-centre: shadow match card (value, meter, one status line). Top-right: Reset and Pause. Bottom-left: control hints (Drag Move, R Rotate, Shift Tilt, Z Height, Wheel Depth). Bottom-right: Check Shadow (teal) and Show Solution (quiet). The centre is an empty slot. Under 44rem wide the match card drops to its own row, hints sit above a two-button action row; under 30rem high the card and hints compact. These breakpoints follow the HUD's own size, not the window's.
+**Match feedback.** `setMatchState(state, message?)` changes the status line without touching the value; `setMatch(value, { state?, message? })` does both, and a value-only call keeps the current state and message. A state change without a message shows that state's default (or the `messages` option). An unknown state falls back to `idle`. `data-state` is kept in sync on both the match card and the HUD root (4.1 only set it on the root at creation). The HUD never moves to `checking`, `match` or `miss` by itself, and never derives a state from a number: pressing Check Shadow changes no feedback until the bridge calls `setMatchState` / `setMatch`. If a check should not be requested twice, the bridge can also call `setDisabled('check')` while it runs, or return a promise from `onCheckShadow`.
 
-**Methods.** `setLevel({ number, name })`, `setMatch(value, { state?, message? })`, `setDisabled('pause' | 'reset' | 'check' | 'solution', disabled?)`, `setHintsVisible(visible)` (bind it to the existing `controlHints` setting in Step 4.2), `setActiveControl(id | null)` (highlights a hint; optional), `destroy()`. Disabled buttons use `aria-disabled` (still focusable) and ignore clicks.
+**Active control and hints.** `setActiveControl(id | null)` highlights one hint; `null`, an unknown id or a non-string clears it (it never throws, so it is safe to call from a per-frame loop). `setHintsVisible(visible)` shows or hides the list without removing it from the DOM; the highlight and the four buttons are unaffected. Bind it to the existing `controlHints` setting.
 
-**Accessibility.** Native buttons with accessible names, tab order reset → pause → check → solution, the kit's gold focus ring, `role="meter"` for the match, a polite `role="status"` line that is only rewritten when its text changes (the value `<output>` is set to `aria-live="off"` so dragging does not flood a screen reader), forced-colors and reduced-motion rules (OS setting or a `data-mp-reduce-motion="true"` ancestor).
+**Pointer events and keyboard.** Unchanged from 4.1: `.mp-ghud` is `pointer-events: none` and only `.mp-btn` / `.mp-icon-btn` opt back in, so drag, wheel and pointer capture on the canvas behind the HUD are untouched (the HUD adds no pointer, wheel or key listeners and never calls `stopPropagation`). The buttons are native `<button>`s, so Tab, Enter and Space work and the gold focus ring stays. R / Shift / Z / Escape remain the gameplay's. Not blurring buttons after a mouse click is deliberate: it keeps keyboard navigation predictable.
 
-**For Step 4.2.** Register the gameplay screen as `keys: 'passthrough'` (see Step 3) and append the HUD to its element. The HUD already leaves the canvas receiving pointer input everywhere except its buttons. Which state to show and when to disable a button is the bridge's decision.
+**What the current `main.js` offers a bridge (observed, not used here).** It already has `reset()`, a `paused` flag toggled by its own Pause button, a Show Solution handler, and a `checkRequested` flag set by its Check button; the match score and the `#feedback` text are produced in its render loop; `rotateMode` (R) and `depthMode` (Z, height) are the only mode flags (no tilt or drag flag). Mapping those to the callbacks and to `setActiveControl` / `setMatch`, and deciding what Pause does with the screen manager, belongs to the integration step.
+
+| File | Change in 4.2 |
+|---|---|
+| `gameplay-hud/gameplay-hud.js` | Safe, late-bindable callbacks; repeat lockout; busy state; `onError`; `setHandlers`, `setMatchState`; `HUD_BUTTONS`, `DEFAULT_REPEAT_GUARD_MS`; root `data-state` sync; `destroy()` also drops the callbacks |
+| `gameplay-hud/gameplay-hud.css` | One rule for the busy state |
+| `gameplay-hud/index.js` | Two new exports |
+| `gameplay-hud-demo.html` / `.js` | Stand-in bridge (scripted, logs only), stand-in canvas that counts pointer-downs, async / throwing / unbound toggles |
+| `tests/gameplay-hud-interaction.test.mjs` | 54 jsdom checks with mock callbacks and an injected clock |
+
+**Not done in 4.2 (by design).** No integration into `main.js` / `index.html`; no pause, reset, shadow validation or solution logic; no Pause label or pressed state (the Pause button is a plain action; the game's Resume lives in the pause overlay); the lockout is time-based, so a very slow held-key repeat can still produce one click per lockout window.
 
 ## Tests
 
-`node tests/gameplay-hud.test.mjs` (jsdom, `npm i jsdom` once). jsdom has no layout: responsive layout and the real focus ring are covered by the demo page, not by this file.
+`node tests/gameplay-hud.test.mjs` (4.1: structure and accessibility) and `node tests/gameplay-hud-interaction.test.mjs` (4.2: interaction), both jsdom (`npm i jsdom` once). jsdom has no layout or real pointer routing: responsive layout, the real focus ring and the pointer pass-through over a canvas are covered by the CSS-source checks and by the demo page, not by these files.

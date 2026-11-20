@@ -1,4 +1,4 @@
-/* MORPHEUS UI, Step 4.1: layout and states of the solo gameplay HUD.
+/* MORPHEUS UI, Step 4.1 (+ 4.2 busy state): layout and states of the solo gameplay HUD.
    Needs tokens.css and ui.css (link this file after them). Tokens only, every class is .mp-ghud- prefixed.
    The HUD fills its container but is transparent to the pointer: only the four buttons catch events, so the 3D
    canvas underneath keeps receiving drag, wheel and key input everywhere else.
@@ -54,6 +54,7 @@
 .mp-ghud__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--mp-space-3); margin-inline-start: auto; }
 .mp-ghud__actions .mp-btn { justify-content: center; min-width: 10rem; }
 .mp-ghud .mp-icon-btn[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+.mp-ghud :is(.mp-btn, .mp-icon-btn)[aria-busy="true"] { opacity: 0.7; cursor: progress; } /* Step 4.2: an async action is running; the button stays focusable */
 
 /* ───────── Narrow containers (phones, portrait tablets) ───────── */
 @container mp-ghud (max-width: 44rem) {

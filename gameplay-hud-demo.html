@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MORPHEUS / Gameplay HUD demo (Step 4.1)</title>
+  <title>MORPHEUS / Gameplay HUD demo (Steps 4.1 + 4.2)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -18,7 +18,8 @@
     /* Stand-in for the Three.js canvas: a dark room with a faint target silhouette frame. There is NO scene here. */
     .demo-viewport { position: relative; overflow: hidden; width: 100%; height: 100%; background: radial-gradient(90% 70% at 50% 40%, #3b2a1d 0%, #14100c 70%); }
     .demo-viewport[data-frame]:not([data-frame="full"]) { outline: 1px solid var(--mp-border-soft); }
-    .demo-viewport__centre { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    /* Stand-in for the canvas: a SIBLING underneath the HUD that receives pointerdown, exactly like the real canvas will. */
+    .demo-viewport__centre { position: absolute; inset: 0; display: grid; place-items: center; cursor: grab; touch-action: none; user-select: none; }
     .demo-viewport__centre span { padding: var(--mp-space-4) var(--mp-space-6); border: 1px dashed var(--mp-border-soft); border-radius: var(--mp-r-md); color: var(--mp-tan-dim); font: var(--mp-fw-label) var(--mp-fs-caption) var(--mp-font-ui); letter-spacing: var(--mp-ls-label); text-transform: uppercase; }
     .demo-inspector { flex: none; width: 19rem; height: 100vh; overflow: auto; padding: var(--mp-space-3); background: rgb(10 8 6 / .92); border-inline-start: 1px solid var(--mp-border-soft); font-size: .78rem; line-height: 1.5; }
     .demo-inspector:not([open]) { width: auto; height: auto; align-self: flex-start; }
@@ -30,6 +31,8 @@
     .demo-inspector button[aria-pressed="true"] { border-color: var(--mp-gold); }
     .demo-inspector input[type="range"] { width: 100%; accent-color: var(--mp-gold); }
     .demo-inspector :is(button, select, input, summary):focus-visible { outline: var(--mp-focus-ring); outline-offset: 2px; }
+    .demo-note { margin: 0; color: var(--mp-tan); }
+    .demo-inspector small { color: var(--mp-tan-dim); }
     .demo-row { display: flex; gap: var(--mp-space-2); flex-wrap: wrap; align-items: center; }
     .demo-log { margin: 0; padding: 0; list-style: none; max-height: 7rem; overflow: auto; color: var(--mp-tan); font-family: ui-monospace, monospace; font-size: .7rem; }
   </style>
@@ -37,14 +40,21 @@
 <body>
   <main class="demo-stage">
     <div class="demo-viewport" id="viewport" data-frame="full" role="region" aria-label="Gameplay HUD preview">
-      <div class="demo-viewport__centre"><span>3D viewport (stand-in)</span></div>
+      <div class="demo-viewport__centre" id="canvas"><span id="canvas-label">3D viewport (stand-in) · pointer-downs: 0</span></div>
     </div>
   </main>
   <details class="demo-inspector" open>
-    <summary>STEP 4.1 INSPECTOR</summary>
+    <summary>STEP 4.2 INSPECTOR</summary>
     <div>
       <h2>FRAME (HUD adapts to its own size)</h2>
       <div class="demo-row" id="frames" role="group" aria-label="Preview frame size"></div>
+      <h2>STAND-IN BRIDGE (scripted, no gameplay)</h2>
+      <label class="demo-row"><input type="checkbox" id="bind" checked> callbacks bound <small>(off: clicks do nothing, no error)</small></label>
+      <label class="demo-row"><input type="checkbox" id="async"> callbacks return a promise (800 ms) <small>(button shows aria-busy)</small></label>
+      <label class="demo-row"><input type="checkbox" id="throws"> callbacks throw <small>(reported to onError)</small></label>
+      <label class="demo-row">Check Shadow outcome
+        <select id="outcome" aria-label="Scripted outcome of Check Shadow"><option value="match">match (97%)</option><option value="close">close (78%)</option><option value="miss">miss (31%)</option></select></label>
+      <p class="demo-note">Click the HUD buttons, then click or drag anywhere else: only the empty area counts pointer-downs. Double-click a button: the 400 ms lockout runs it once. R / Z / Shift do nothing here, the HUD has no key listeners.</p>
       <h2>MATCH FEEDBACK (display values only)</h2>
       <label class="demo-row">Value <input type="range" id="match" min="0" max="100" value="62" aria-label="Match value"> <output id="match-out">62%</output></label>
       <div class="demo-row" id="states" role="group" aria-label="Feedback state"></div>
