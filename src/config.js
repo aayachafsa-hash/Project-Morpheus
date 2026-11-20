@@ -39,4 +39,15 @@ export const CONFIG = {
   // Fit the atlas silhouette to this projector while keeping the fish in the lit part of the beam.
   solution: { x: 0.14, height: 1.15, z: -0.79, rotation: [-1.35, 0.02, -0.38] },
   initial: { x: -1.5, height: 0.55, z: -1.5, rotation: [0.35, 1.1, -0.4] },
+
+  duel: {
+    countdown: 3, threshold: 90, holdTime: 0.5,
+    tie: 'replay', // 'replay' | 'higherScore' | 'both' : à décider avec l'équipe
+    controls: {
+      p1: { left: 'KeyA', right: 'KeyD', forward: 'KeyW', back: 'KeyS', up: 'KeyR', down: 'KeyF',
+            rotateLeft: 'KeyQ', rotateRight: 'KeyE', precision: 'ShiftLeft', cycleAxis: 'KeyT', switchObject: 'Tab' },
+      p2: { left: 'ArrowLeft', right: 'ArrowRight', forward: 'ArrowUp', back: 'ArrowDown', up: 'KeyI', down: 'KeyK',
+            rotateLeft: 'KeyJ', rotateRight: 'KeyL', precision: 'ShiftRight', cycleAxis: 'KeyO', switchObject: 'Enter' },
+    },
+  },
 };

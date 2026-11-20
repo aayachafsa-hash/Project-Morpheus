@@ -13,4 +13,9 @@ view.canvas.addEventListener('webglcontextlost', event => {
 });
 
 const shadows = createShadowSystem(view.shadowScene);
-startGameplay(view, shadows, ui);
+if (new URLSearchParams(location.search).get('mode') === 'duel') {
+  const { startDuel } = await import('./gameplay/LocalMultiplayer.js');
+  startDuel(view, ui);
+} else {
+  startGameplay(view, shadows, ui);
+}
