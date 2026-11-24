@@ -1,0 +1,177 @@
+/* MORPHEUS UI — design tokens (Step 1)
+   Visual source of truth: the 34-screen reference sheet.
+   Base values follow the written brief; accent hues were sampled from the sheet.
+   Where the sheet is ambiguous the choice is darker, warmer, calmer.
+   Fonts are NOT imported here: add the <link> from README.md to the page <head>. */
+@font-face { font-family: Cinzel; src: url('../../public/ui/fonts/cinzel-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Jost; src: url('../../public/ui/fonts/jost-300.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: Jost; src: url('../../public/ui/fonts/jost-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Jost; src: url('../../public/ui/fonts/jost-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+
+@font-face { font-family: Marcellus; src: url("../../public/ui/fonts/marcellus-400.woff2"); font-display: swap; }
+@font-face { font-family: Forum; src: url("../../public/ui/fonts/forum-400.woff2"); font-display: swap; }
+@font-face { font-family: "Cormorant Garamond"; src: url("../../public/ui/fonts/cormorant-garamond-400.woff2"); font-display: swap; }
+
+:root {
+  --mp-space-button-block: 0.7rem;
+  --mp-space-menu-block: 0.6rem;
+  --mp-space-tab-inline: 1.75rem;
+  --mp-space-icon-caption: 0.4rem;
+  --mp-space-key-block: 0.15rem;
+  --mp-space-stars: 0.2rem;
+  --mp-space-compact: .35rem;
+  --mp-space-debug-inline: .875rem;
+  --mp-space-loading-content: 40px;
+  --mp-space-loading-inset: 2px;
+  --mp-space-loading-retry: 7px;
+  --mp-r-progress: 5px;
+  --mp-space-loading-meter: 66px;
+  --mp-space-loading-percent: 13px;
+  --mp-space-loading-small: 15px;
+  --mp-space-loading-eclipse: -12px;
+  --mp-shadow-loading-vignette: inset 0 0 180px 65px color-mix(in srgb, var(--mp-bg-0) 60%, transparent);
+  --mp-shadow-loading-eclipse: 0 -10px 24px -17px var(--mp-gold-bright),inset 0 5px 14px -14px var(--mp-parchment);
+  --mp-shadow-loading-title: 0 2px 20px color-mix(in srgb, var(--mp-gold) 25%, transparent);
+  --mp-shadow-loading-track: inset 0 1px 4px color-mix(in srgb, var(--mp-bg-0) 53%, transparent),0 1px 0 color-mix(in srgb, var(--mp-gold) 5%, transparent);
+  --mp-shadow-loading-fill: 0 0 12px color-mix(in srgb, var(--mp-gold) 33%, transparent),inset 0 1px 0 color-mix(in srgb, var(--mp-parchment) 45%, transparent);
+  --mp-shadow-menu-item: var(--mp-glow-gold), inset 0 0 18px color-mix(in srgb, var(--mp-gold) 8%, transparent);
+  --mp-shadow-key-cap: inset 0 -1px 0 color-mix(in srgb, var(--mp-bg-0) 35%, transparent);
+  --mp-shadow-progress-track: inset 0 0 0 1px color-mix(in srgb, var(--mp-bronze) 35%, transparent);
+  --mp-shadow-progress-fill: 0 0 10px color-mix(in srgb, var(--mp-gold) 55%, transparent);
+  --mp-shadow-tray-slot-outer: 0 0 12px;
+  --mp-shadow-tray-slot-inner: inset 0 0 0 1px;
+  --mp-shadow-failure-title: 0 0 22px color-mix(in srgb, var(--mp-fail) 45%, transparent);
+  --mp-shadow-dust: 0 0 6px color-mix(in srgb, var(--mp-gold-bright) 40%, transparent);
+  color-scheme: dark;
+
+  /* ── Color: warm near-black surfaces ── */
+  --mp-bg-0: #0b0906;
+  --mp-bg-1: #120d09;
+  --mp-bg-2: #1c140e;
+  --mp-bg-3: #261f16;
+
+  /* ── Color: bronze → gold (structure, borders, highlights) ── */
+  --mp-bronze-dim: #4a4030;
+  --mp-bronze: #8b6f5c;
+  --mp-gold: #e0c089;
+  --mp-gold-bright: #f0cf9b;
+
+  /* ── Color: text ── */
+  --mp-parchment: #efe6dc;
+  --mp-tan: #b39b7d;       /* secondary text, ≥ 4.5:1 on bg-2 */
+  --mp-tan-dim: #85735e;   /* decorative / disabled only */
+
+  /* ── Color: functional accents ── */
+  --mp-teal: #38c4cf;        /* shadow match, Check Shadow */
+  --mp-teal-deep: #173c3d;
+  --mp-p1: #67c0e6;          /* Player 1 */
+  --mp-p2: #4ad28f;          /* Player 2 */
+  --mp-fail: #c9735a;        /* Puzzle Failed, Defeat */
+  --mp-fail-bg: #3a241d;
+  --mp-fail-text: #f1d3c9;
+
+  /* ── Surfaces ── */
+  --mp-panel-bg: linear-gradient(160deg, rgb(42 31 22 / .78), rgb(18 13 9 / .84));
+  --mp-panel-bg-solid: var(--mp-bg-2);
+  --mp-border: color-mix(in srgb, var(--mp-bronze) 75%, transparent);        /* 1px bronze hairline */
+  --mp-border-soft: color-mix(in srgb, var(--mp-bronze) 35%, transparent);
+  --mp-border-strong: var(--mp-gold);
+
+  /* ── Type families ── */
+  --mp-font-display: "Cinzel", "Cormorant SC", "Trajan Pro", Georgia, "Times New Roman", serif;
+  --mp-font-ui: "Jost", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mp-font-specimen-marcellus: "Marcellus", Georgia, serif;
+  --mp-font-specimen-forum: "Forum", Georgia, serif;
+  --mp-font-specimen-cormorant: "Cormorant Garamond", Georgia, serif;
+
+  /* ── Type scale (fluid, 360px → 4K; rem so it scales with the 4K bump below) ── */
+  --mp-fs-display: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem);    /* MORPHEUS, PAUSED, VICTORY */
+  --mp-fs-title: clamp(0.95rem, 0.8rem + 0.6vw, 1.5rem);       /* › PLAY, › SELECT MODE */
+  --mp-fs-label: clamp(0.72rem, 0.66rem + 0.25vw, 0.95rem);    /* menu items, buttons, tabs */
+  --mp-fs-body: clamp(0.82rem, 0.76rem + 0.25vw, 1rem);        /* descriptions, captions */
+  --mp-fs-caption: clamp(0.66rem, 0.62rem + 0.2vw, 0.8rem);    /* MATCH, OBJECTS, hints */
+  --mp-fs-numeral: clamp(1.75rem, 1.2rem + 2vw, 3rem);         /* 82% */
+
+  /* ── Tracking ── */
+  --mp-ls-display: 0.34em;
+  --mp-ls-title: 0.3em;
+  --mp-ls-label: 0.22em;
+  --mp-ls-caption: 0.14em;
+  --mp-ls-body: 0.02em;
+
+  /* ── Weights ── */
+  --mp-fw-display: 400;
+  --mp-fw-label: 500;
+  --mp-fw-body: 400;
+  --mp-fw-light: 300;
+
+  /* ── Spacing (4px base) ── */
+  --mp-space-1: 0.25rem;
+  --mp-space-2: 0.5rem;
+  --mp-space-3: 0.75rem;
+  --mp-space-4: 1rem;
+  --mp-space-5: 1.5rem;
+  --mp-space-6: 2rem;
+  --mp-space-7: 3rem;
+  --mp-space-8: 4rem;
+  --mp-space-card: 1.25rem;
+  --mp-hud-margin: clamp(24px, 2vw, 32px);
+  --mp-fs-wordmark: clamp(28px, 2.4vw, 44px);
+  --mp-fs-hud-numeral: clamp(1.6rem, 2.1vw, 2.5rem);
+  --mp-wordmark-clearance: 3.75rem;
+  --mp-hud-width: clamp(12rem, 14vw, 16rem);
+  --mp-menu-width: 31rem;
+  --mp-dialog-width: 30rem;
+  --mp-level-tile-column: 5.5rem;
+  --mp-level-dialog-width: 36rem;
+  --mp-level-result-width: 10rem;
+  --mp-result-width: 13rem;
+  --mp-thumbnail-coverage: 100%; /* Fill the padded content box, about 70–80% of the tile height. */
+  --mp-hint-surface: color-mix(in srgb, var(--mp-bg-1) 92%, transparent);
+  --mp-hint-dim: .35;
+  --mp-slider-thumb-offset: calc((var(--mp-space-1) - var(--mp-space-4)) / 2);
+  --mp-scrim: color-mix(in srgb, var(--mp-bg-0) 72%, transparent);
+  --mp-scrim-solid: var(--mp-bg-0);
+  --mp-scrim-blur: .5rem;
+
+  /* ── Radii (small, never pills) ── */
+  --mp-fog: #d3b97c;
+  --mp-font-mono: ui-monospace, Consolas, monospace;
+  --mp-border-width: 1px;
+  --mp-r-sm: 4px;
+  --mp-r-md: 6px;
+  --mp-r-lg: 8px;
+  --mp-r-circle: 50%;
+
+  /* ── Shadows & glows ── */
+  --mp-shadow-panel: 0 12px 32px rgb(0 0 0 / .5);
+  --mp-inner-glow: inset 0 0 28px rgb(217 169 106 / .05);
+  --mp-glow-gold: 0 0 12px rgb(217 169 106 / .32);
+  --mp-glow-teal: 0 0 12px rgb(88 196 207 / .3);
+  --mp-glow-p1: 0 0 14px rgb(111 203 230 / .28);
+  --mp-glow-p2: 0 0 14px rgb(98 210 143 / .28);
+  --mp-text-glow: 0 0 22px rgb(217 169 106 / .28);
+  --mp-shadow-wordmark: 0 1px 12px var(--mp-bg-0), 0 0 22px var(--mp-bg-0);
+
+  /* ── Motion ── */
+  --mp-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --mp-dur-hover: 300ms;
+  --mp-dur-screen: 750ms;
+  --mp-dur-tooltip: 400ms;
+  --mp-dur-dialog: 240ms;
+
+  /* ── Focus ── */
+  --mp-focus-ring: 2px solid var(--mp-gold-bright);
+  --mp-focus-offset: 3px;
+
+  /* ── Touch target ── */
+  --mp-hit: 2.75rem;
+}
+
+.mp-slider {
+  --mp-slider-track: linear-gradient(to right, var(--mp-gold) var(--mp-slider-fill, 0%), var(--mp-bronze-dim) var(--mp-slider-fill, 0%));
+}
+
+@media (min-width: 2560px) { :root { font-size: 125%; } }
+@media (min-width: 3400px) { :root { font-size: 150%; } }
+

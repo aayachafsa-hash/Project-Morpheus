@@ -20,7 +20,7 @@ function copyTextureUV(texture, source) {
   texture.repeat.copy(source.repeat);
 }
 
-export async function createEnvironment(scene, renderer) {
+export async function createEnvironment(scene, renderer,manager) {
   // Deterministic, locally generated surface textures.
   function noiseTexture(seed, repeat) {
     const surface = document.createElement('canvas');
@@ -42,9 +42,9 @@ export async function createEnvironment(scene, renderer) {
     // A bump map stores scalar data, so leave its colorSpace at NoColorSpace.
     return texture;
   }
-  const loader = new THREE.TextureLoader();
+  const loader = new THREE.TextureLoader(manager);
   const [{ scene: room }, relief, rimColor, rimRoughness, marbleColor, marbleRoughness] = await Promise.all([
-    new GLTFLoader().loadAsync(roomUrl),
+    new GLTFLoader(manager).loadAsync(roomUrl),
     loadTexture(loader, 'medusa-relief-normal'),
     loadTexture(loader, 'plate-rim-color', THREE.SRGBColorSpace),
     loadTexture(loader, 'plate-rim-roughness'),

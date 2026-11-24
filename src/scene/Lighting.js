@@ -22,7 +22,7 @@ function setWorld(scene, renderer, radiance) {
   world.dispose();
 }
 
-function aimProjector(lens, wall) {
+export function aimProjector(lens, wall) {
   const bounds = new THREE.Box3().setFromObject(wall, true);
   const { wallX, height } = CONFIG.projector;
   const target = new THREE.Vector3(
@@ -41,6 +41,11 @@ function aimProjector(lens, wall) {
 
 function createDisplayLight(source, projectorAim) {
   const color = new THREE.Color().setRGB(...source.linearColor, THREE.LinearSRGBColorSpace);
+  const warmTint = new THREE.Color(CONFIG.gallery.warmTint);
+  // Normalize the sampled tint so warmth does not dim the existing rig.
+  const luminance = 0.2126 * warmTint.r + 0.7152 * warmTint.g + 0.0722 * warmTint.b;
+  warmTint.multiplyScalar(1 / luminance);
+  color.multiply(new THREE.Color(1, 1, 1).lerp(warmTint, CONFIG.gallery.warmth));
   if (source.type === 'AREA') {
     const light = new THREE.RectAreaLight(color, source.intensity, source.width, source.height);
     if (source.name === 'Gallery | plaster wash') light.intensity *= CONFIG.gallery.plasterWash;
@@ -93,41 +98,7 @@ export function addLighting(scene, renderer, { lens, wall, piece }) {
     }
   }
 
-  // The scoring fixture projects the existing puzzle mask independently of
-  // the Cycles lights used for display.
-  const { maskLight, maskShadow } = CONFIG;
-  const scoring = new THREE.SpotLight(0xffffff, 1, maskLight.distance, maskLight.angle);
-  scoring.name = 'Puzzle scoring spotlight';
-  scoring.target.position.copy(projectorAim.target);
-  scoring.position.copy(projectorAim.origin);
-  scoring.castShadow = true;
-  scoring.visible = false;
-  scoring.shadow.mapSize.setScalar(maskShadow.mapSize);
-  scoring.shadow.camera.near = maskShadow.near;
-  scoring.shadow.camera.far = maskShadow.far;
-  scoring.shadow.bias = maskShadow.bias;
-  scoring.shadow.normalBias = maskShadow.normalBias;
-  scoring.shadow.radius = maskShadow.radius;
-  scoring.shadow.autoUpdate = false;
-  scene.add(scoring, scoring.target);
-
-  const lastScoredPose = new THREE.Matrix4();
-  let displayUpdatePending = false;
-  scene.onBeforeRender = activeRenderer => {
-    if (!wall.material.isShadowMaterial) return;
-    displayUpdatePending = activeRenderer.shadowMap.needsUpdate;
-    for (const light of displaySpots) light.visible = false;
-    scoring.visible = true;
-    piece.mesh.updateWorldMatrix(true, false);
-    scoring.shadow.needsUpdate = !scoring.shadow.map || !lastScoredPose.equals(piece.mesh.matrixWorld);
-    lastScoredPose.copy(piece.mesh.matrixWorld);
-    activeRenderer.shadowMap.needsUpdate = scoring.shadow.needsUpdate;
-  };
-  scene.onAfterRender = activeRenderer => {
-    if (!scoring.visible) return;
-    scoring.visible = false;
-    for (const light of displaySpots) light.visible = true;
-    activeRenderer.shadowMap.needsUpdate = displayUpdatePending;
-  };
-  return projectorAim;
+  return { ...projectorAim, spotlight: scene.getObjectByName('Projector beam') };
 }
+
+

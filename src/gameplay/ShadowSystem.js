@@ -1,66 +1,82 @@
 import * as THREE from 'three';
-import { CONFIG } from '../config.js?shadow-progress';
+import { CONFIG } from '../config.js';
+import { MASK_RES, UPDATE_MS } from './ScoringConstants.js';
 import { createTargetGuide } from '../scene/TargetGuide.js';
-
-export function createShadowSystem({ renderer, scene, wall, roomMeshesOutsideProjection, gizmo, piece }) {
-  // Score the actual spotlight shadow, not object positions or a fabricated value.
-  // A temporary ShadowMaterial isolates the wall shadow in an offscreen buffer.
-  // The piece remain shadow casters, but write no visible color/depth in this pass.
-  const scoreSettings = CONFIG.scoring;
-  const scoreTarget = new THREE.WebGLRenderTarget(scoreSettings.width, scoreSettings.height, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
-  const scorePixels = new Uint8Array(scoreSettings.width * scoreSettings.height * 4);
-  const scoreCamera = new THREE.OrthographicCamera(scoreSettings.left, scoreSettings.right, scoreSettings.top, scoreSettings.bottom, 0.1, 40);
-  scoreCamera.position.set(0, 0, 12);
-  scoreCamera.lookAt(0, 0, CONFIG.wall.z);
-  const shadowOnlyMaterial = new THREE.ShadowMaterial({ color: 0x000000, opacity: 1, toneMapped: false });
-  const whiteBackground = new THREE.Color(0xffffff);
-  const roomVisibility = roomMeshesOutsideProjection.map(() => true);
-  let guide;
-  function captureShadowMask() {
-    const previousTarget = renderer.getRenderTarget();
-    const background = scene.background;
-    const material = wall.material;
-    const gizmoVisible = gizmo.visible;
-    const outlineVisible = piece.outline.visible;
-    const guideVisible = guide?.visible;
-    try {
-      scene.background = whiteBackground;
-      wall.material = shadowOnlyMaterial;
-      for (const [index, mesh] of roomMeshesOutsideProjection.entries()) {
-        roomVisibility[index] = mesh.visible;
-        mesh.visible = false;
-      }
-      gizmo.visible = false;
-      piece.outline.visible = false;
-      if (guide) guide.visible = false;
-      piece.mesh.material.colorWrite = false;
-      piece.mesh.material.depthWrite = false;
-      renderer.setRenderTarget(scoreTarget);
-      renderer.render(scene, scoreCamera);
-      renderer.readRenderTargetPixels(scoreTarget, 0, 0, scoreSettings.width, scoreSettings.height, scorePixels);
-      const mask = new Uint8Array(scoreSettings.width * scoreSettings.height);
-      for (let i = 0; i < mask.length; i++) mask[i] = scorePixels[i * 4] < scoreSettings.threshold ? 1 : 0;
-      return mask;
-    } finally {
-      renderer.setRenderTarget(previousTarget);
-      scene.background = background;
-      wall.material = material;
-      for (const [index, mesh] of roomMeshesOutsideProjection.entries()) mesh.visible = roomVisibility[index];
-      gizmo.visible = gizmoVisible;
-      piece.outline.visible = outlineVisible;
-      if (guide) guide.visible = guideVisible;
-      piece.mesh.material.colorWrite = true;
-      piece.mesh.material.depthWrite = true;
-    }
-  }
-  return {
-    captureShadowMask,
-    initializeGuide(mask) {
-      guide = createTargetGuide(mask, wall);
-      scene.add(guide);
+export function createShadowSystem({ renderer, scene, wall, pieces, piece, spotlight, invalidateRender }) {
+  const s = CONFIG.scoring;
+  const options = { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter };
+  const lightTarget = new THREE.WebGLRenderTarget(MASK_RES, MASK_RES, options);
+  const wallTarget = new THREE.WebGLRenderTarget(MASK_RES, MASK_RES, options);
+  const lightScene = new THREE.Scene(); lightScene.background = new THREE.Color(0);
+  const white = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, toneMapped: false });
+  const proxies = [];
+  for (const p of pieces ?? [piece]) p.mesh.traverse(mesh => {
+    if (!mesh.isMesh) return;
+    for (let node = mesh; node; node = node.parent) if (node === p.outline) return;
+    const proxy = new THREE.Mesh(mesh.geometry, white); proxy.matrixAutoUpdate = false;
+    lightScene.add(proxy); proxies.push({ mesh, proxy });
+  });
+  const projector = new THREE.PerspectiveCamera(1, 1, .01, 1000);
+  const camera = new THREE.OrthographicCamera(s.left, s.right, s.top, s.bottom, .01, 2000);
+  // The imported projection wall is in XY. Oblique projector rays are reprojected
+  // into this fixed wall space rather than compared in a perspective thumbnail.
+  const wallZ = new THREE.Box3().setFromObject(wall, true).max.z;
+  camera.position.set(0, 0, wallZ + 100); camera.lookAt(0, 0, wallZ);
+  const projection = new THREE.Matrix4();
+  const material = new THREE.ShaderMaterial({
+    uniforms: { mask: { value: lightTarget.texture }, projectorMatrix: { value: projection } },
+    vertexShader: `uniform mat4 projectorMatrix; varying vec4 beamUV;
+      void main(){ vec4 world=modelMatrix*vec4(position,1.); beamUV=projectorMatrix*world;
+      gl_Position=projectionMatrix*viewMatrix*world; }`,
+    fragmentShader: `uniform sampler2D mask; varying vec4 beamUV;
+      void main(){ vec3 ndc=beamUV.xyz/beamUV.w; vec2 uv=ndc.xy*.5+.5;
+      bool valid=beamUV.w>0. && abs(ndc.x)<=1. && abs(ndc.y)<=1. && abs(ndc.z)<=1. && length(ndc.xy)<=1.;
+      float value=valid ? step(.5,texture2D(mask,uv).r) : 0.; gl_FragColor=vec4(vec3(value),1.); }`,
+    toneMapped: false,
+  });
+  const wallScene = new THREE.Scene(); wallScene.background = new THREE.Color(0);
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(s.right-s.left, s.top-s.bottom), material);
+  plane.position.set((s.left+s.right)/2, (s.bottom+s.top)/2, wallZ); wallScene.add(plane);
+  let guide, pending = false, lastCapture = -Infinity, finished;
+  const api = {
+    async captureShadowMask(now = performance.now(), authoring = false) {
+      if (pending || !authoring && now-lastCapture < UPDATE_MS) return null;
+      pending = true;
+      if(!authoring)lastCapture = now;
+      let finish;
+      finished=new Promise(resolve=>{finish=resolve;});
+      const previous = renderer.getRenderTarget(), autoClear = renderer.autoClear;
+      try {
+        projector.position.copy(spotlight.getWorldPosition(new THREE.Vector3()));
+        projector.lookAt(spotlight.target.getWorldPosition(new THREE.Vector3()));
+        projector.fov = THREE.MathUtils.radToDeg(spotlight.angle*2);
+        projector.updateProjectionMatrix(); projector.updateMatrixWorld(true);
+        projection.multiplyMatrices(projector.projectionMatrix, projector.matrixWorldInverse);
+        for (const {mesh, proxy} of proxies) {
+          mesh.updateWorldMatrix(true, false); proxy.geometry=mesh.geometry; proxy.matrix.copy(mesh.matrixWorld); proxy.visible=mesh.visible;
+        }
+        renderer.autoClear=true;
+        renderer.setRenderTarget(lightTarget); renderer.render(lightScene, projector);
+        renderer.setRenderTarget(wallTarget); renderer.render(wallScene, camera);
+        const pixels=new Uint8Array(MASK_RES*MASK_RES*4);
+        const read=renderer.readRenderTargetPixelsAsync(wallTarget,0,0,MASK_RES,MASK_RES,pixels);
+        renderer.setRenderTarget(previous); renderer.autoClear=autoClear;
+        await read;
+        return Uint8Array.from({length:MASK_RES*MASK_RES},(_,i)=>pixels[i*4]>=128 ? 1 : 0);
+      } finally { renderer.setRenderTarget(previous); renderer.autoClear=autoClear; pending=false; finish(); }
     },
-    setGuideVisible(visible) { guide.visible = visible; },
-    invalidateShadows() { renderer.shadowMap.needsUpdate = true; },
+    async captureAuthoringMask(snapshot) {
+      while(pending)await finished;
+      const pose=snapshot();
+      const mask=await api.captureShadowMask(performance.now(),true);
+      return {pose,mask};
+    },
+    maskSpace:{width:MASK_RES,height:MASK_RES,left:s.left,right:s.right,bottom:s.bottom,top:s.top,wallZ},
+    initializeGuide(mask) { if(guide){scene.remove(guide);guide.geometry.dispose();guide.material.dispose();} guide=createTargetGuide(mask,wall); scene.add(guide); },
+    setGuideVisible(visible) { if(guide && guide.visible!==visible){guide.visible=visible;invalidateRender();} },
+    invalidateShadows() { renderer.shadowMap.needsUpdate=true; invalidateRender(); },
     shadowsNeedUpdate() { return renderer.shadowMap.needsUpdate; },
   };
+  return api;
 }
+
