@@ -19,6 +19,11 @@
 //   ui.setDuelState(state)   state = { phase, remaining, holds, holdTime, threshold,
 //                                      roundId, paused, result, scores: [n, n], axes: ['Y', 'Y'] }
 //   ui.showDuelResult(result)  result = { winners: number[], tie, replay }  (called once per round)
+//   ui.setMatchState(match)  match = { mode, over, matchWinner, draw, roundsPlayed, roundsTotal,
+//                                      wins: [n, n], points: [n, n], history }  (from ScoreManager)
+//
+// Match mode comes from CONFIG.duel.match, overridable in the URL for tests:
+//   ?mode=duel&match=survival   ?mode=duel&match=classic&rounds=5
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { createShadowSystem } from './ShadowSystem.js';
@@ -27,6 +32,7 @@ import { compareSilhouettes } from './PuzzleValidator.js';
 import { createInputManager } from './InputManager.js';
 import { createPlayerController } from './PlayerController.js';
 import { createRoundState } from './RoundState.js';
+import { createScoreManager } from './ScoreManager.js';
 
 export function startDuel(view, ui) {
   if (!view.stations || view.stations.length !== 2 || typeof view.renderStations !== 'function') {
@@ -62,7 +68,16 @@ export function startDuel(view, ui) {
     countdown: duel.countdown, threshold: duel.threshold, holdTime: duel.holdTime, tie: duel.tie,
   });
 
+  const params = new URLSearchParams(location.search);
+  const matchSettings = {
+    ...duel.match,
+    mode: params.get('match') ?? duel.match.mode,
+    rounds: Number(params.get('rounds')) || duel.match.rounds,
+  };
+  const score = createScoreManager(matchSettings);
+
   function startRound() {
+    if (score.getState().over) score.reset(); // a new match begins after a finished one
     if (!round.start()) return;
     input.setEnabled(false);
     for (const station of stations) {
@@ -117,8 +132,10 @@ export function startDuel(view, ui) {
     const state = round.getState();
     if (state.phase === 'resolved' && state.roundId !== announcedRound) {
       announcedRound = state.roundId;
+      score.recordRound(state.result, state.roundId); // counted once per round
       ui.showDuelResult?.(state.result);
     }
+    ui.setMatchState?.(score.getState());
     ui.setDuelState?.({
       ...state,
       scores: stations.map(station => station.score),
@@ -131,5 +148,5 @@ export function startDuel(view, ui) {
     );
   });
 
-  return { startRound, round };
+  return { startRound, round, score };
 }

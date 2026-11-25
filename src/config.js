@@ -49,5 +49,6 @@ export const CONFIG = {
       p2: { left: 'ArrowLeft', right: 'ArrowRight', forward: 'ArrowUp', back: 'ArrowDown', up: 'KeyI', down: 'KeyK',
             rotateLeft: 'KeyJ', rotateRight: 'KeyL', precision: 'ShiftRight', cycleAxis: 'KeyO', switchObject: 'Enter' },
     },
+        match: { mode: 'classic', rounds: 3, startingPoints: 5, drawRule: 'draw' }, // à confirmer en équipe
   },
 };
