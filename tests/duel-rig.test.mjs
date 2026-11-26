@@ -7,7 +7,7 @@ const THREE = await import('three');
 const { createDuelRig } = await import('../src/scene/DuelRig.js');
 const { CONFIG } = await import('../src/config.js');
 
-function build() {
+function build(extra = {}) {
   const scene = new THREE.Scene();
   const soloCamera = new THREE.PerspectiveCamera(34.5, 16 / 9);
   soloCamera.position.fromArray(CONFIG.camera.position);
@@ -26,7 +26,8 @@ function build() {
     setScissor: (...a) => { renderer.scissor = a; },
     render: (_scene, camera) => {
       draws.push({ viewport: renderer.viewport, scissor: renderer.scissor, camera, shadowRefresh: renderer.shadowMap.needsUpdate,
-        visible: { solo: solo.mesh.visible, p1: rig.pieces.p1.mesh.visible, p2: rig.pieces.p2.mesh.visible } });
+        visible: { solo: solo.mesh.visible, p1: rig.pieces.p1.mesh.visible, p2: rig.pieces.p2.mesh.visible },
+        probe: extra.probe?.() });
       renderer.shadowMap.needsUpdate = false;
     },
   };
@@ -36,6 +37,7 @@ function build() {
     renderer, scene, soloCamera, soloPiece: solo,
     atmosphere: { update: (...a) => updates.atmosphere.push(a) }, fireflies: { update: (...a) => updates.fireflies.push(a) },
     invalidateSolo: () => { soloInvalidated++; },
+    ...extra.rig,
   });
   solo.camera = soloCamera;
   return { rig, scene, solo, renderer, draws, calls, updates, size, geometry, soloInvalidated: () => soloInvalidated };
@@ -148,4 +150,26 @@ test('a second duel reuses the same pieces', () => {
   const p1 = t.rig.pieces.p1; t.rig.exit(); t.rig.enter(t.geometry(), level);
   assert.equal(t.rig.pieces.p1, p1);
   assert.ok(t.scene.children.includes(p1.mesh));
+});
+
+test('each half hides the decor of the far end, and the seam side gets mirrored wall/floor copies', () => {
+  const at = x => { const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial()); mesh.position.x = x; return mesh; };
+  const leftDecor = at(-9), rightDecor = at(9), floorLike = at(0.4), wall = at(0);
+  wall.scale.set(14, 1, 1);
+  const room = [leftDecor, rightDecor, floorLike];
+  const t = build({
+    rig: { roomMeshes: room, extendable: [wall] },
+    probe: () => ({ left: leftDecor.visible, right: rightDecor.visible, mid: floorLike.visible }),
+  });
+  room.forEach(mesh => t.scene.add(mesh)); t.scene.add(wall); t.scene.updateMatrixWorld(true);
+  t.rig.enter(t.geometry(), level); t.rig.renderFrame(1 / 60);
+  const [p1, p2] = t.draws;
+  assert.deepEqual([p1.probe.left, p1.probe.right, p1.probe.mid], [true, false, true], 'P1 (left half) hides the right-hand decor');
+  assert.deepEqual([p2.probe.left, p2.probe.right, p2.probe.mid], [false, true, true], 'P2 (right half) hides the left-hand decor');
+  assert.equal(leftDecor.visible && rightDecor.visible && floorLike.visible, true, 'everything is visible again between frames');
+  const copies = t.scene.children.filter(node => node.matrixAutoUpdate === false);
+  assert.equal(copies.length, 2, 'one mirrored copy per half');
+  assert.ok(copies.every(copy => copy.visible === false), 'copies are only visible while their half is drawn');
+  t.rig.exit();
+  assert.equal(t.scene.children.some(node => node.matrixAutoUpdate === false), false, 'exit removes the copies');
 });

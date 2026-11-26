@@ -141,5 +141,5 @@ export async function createEnvironment(scene, renderer,manager) {
     if (object !== wall) roomMeshesOutsideProjection.push(object);
   });
   scene.add(room);
-  return { wall, lens, platform, roomMeshesOutsideProjection, stoneNoise: noiseTexture(17, 3) };
+  return { wall, floor, lens, platform, roomMeshesOutsideProjection, stoneNoise: noiseTexture(17, 3) };
 }

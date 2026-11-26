@@ -4,8 +4,8 @@
    to the same dim wall tone at the centre (the stretch between two light cones), and each half keeps its own
    warm light pool. Tune with the --duel-* variables. No blend modes: .mp-duel is its own stacking context. */
 .mp-duel {
-  --duel-seam-dim: .62;      /* how dark the wall is exactly on the seam (0 hides nothing, 1 is black) */
-  --duel-seam-reach: 30%;    /* how far each side of the seam the falloff travels */
+  --duel-seam-dim: .30;      /* how dark the wall is exactly on the seam (0 hides nothing, 1 is black) */
+  --duel-seam-reach: 18%;    /* how far each side of the seam the falloff travels */
   --duel-pool: 15%;          /* strength of each half's light pool */
   --duel-pool-tint: 9%;      /* how much of the player colour the pool carries */
 }
@@ -28,12 +28,13 @@
     radial-gradient(ellipse 30% 46% at 75% 44%,
       color-mix(in srgb, color-mix(in srgb, var(--mp-gold-bright) calc(100% - var(--duel-pool-tint)), var(--mp-p2)) var(--duel-pool), transparent), transparent 72%);
 }
-/* The seam marker stays, but as a faint hairline instead of a bright wall-splitting rule. */
+/* No visible seam marker any more: the two halves are meant to read as one wall. The element stays in the DOM
+   (tests and the HUD still create it); set opacity back to .35 to get the hairline again. */
 .mp-duel__divider {
   position: absolute; inset-block: 0; inset-inline-start: 50%; inline-size: 1px; transform: translateX(-50%);
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--mp-bronze) 70%, transparent) 20%,
     color-mix(in srgb, var(--mp-gold) 60%, transparent) 50%, color-mix(in srgb, var(--mp-bronze) 70%, transparent) 80%, transparent);
-  opacity: .35;
+  opacity: 0;
 }
 .mp-duel__centre {
   position: absolute; inset-block-start: var(--mp-hud-margin); inset-inline-start: 50%; transform: translateX(-50%);
