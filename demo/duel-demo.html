@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morpheus / Démo logique du duel</title>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+  </script>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; --cyan: #5fe3ff; --gold: #ffcf5f; }
+    body { margin: 0; background: #0e0c0b; color: #f5f0e7; padding: 24px; }
+    h1 { font-weight: 500; letter-spacing: .2em; margin: 0; }
+    .banner { margin: 8px 0 20px; padding: 10px 14px; border: 1px solid #b8873a; border-radius: 8px; color: #ffe2a8; background: #2a2012; max-width: 900px; }
+    .top { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    #phase { color: #c0cbd0; min-width: 190px; }
+    #countdown { font-size: 56px; font-weight: 600; min-width: 80px; text-align: center; }
+    #result { font-size: 22px; color: var(--gold); min-height: 30px; }
+    button { font: 600 18px inherit; color: #f5f0e7; background: #173b46; border: 1px solid var(--cyan); border-radius: 10px; padding: 12px 20px; cursor: pointer; }
+    button:disabled { opacity: .4; cursor: default; }
+    .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; max-width: 900px; }
+    .card { background: #111517; border: 2px solid var(--c); border-radius: 14px; padding: 16px; }
+    #p0 { --c: var(--cyan); } #p1 { --c: var(--gold); }
+    .card h2 { margin: 0 0 8px; font-size: 16px; letter-spacing: .12em; color: var(--c); }
+    .score { font-size: 44px; font-variant-numeric: tabular-nums; }
+    .track { position: relative; height: 14px; background: #263036; border-radius: 7px; margin: 8px 0; overflow: hidden; }
+    .fill { height: 100%; background: var(--c); }
+    .hold .fill { background: #ffffff; }
+    .mark { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; }
+    .small { color: #b8c1c4; font-size: 14px; line-height: 1.5; }
+    .match { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; border-top: 1px solid #43535b; padding-top: 10px; }
+    .match strong { font-size: 30px; }
+  </style>
+</head>
+<body>
+  <h1>MORPHEUS · DUEL</h1>
+  <div class="banner">DÉMO : le score est <b>simulé</b> (distance à une pose cible), il n'y a <b>pas d'ombre ni de scène 3D</b>. Cette page montre le clavier à deux joueurs, le round, le compte à rebours et le score du match avec les vrais modules du gameplay.</div>
+  <div class="top">
+    <span id="phase"></span><span id="countdown"></span><span id="result"></span>
+    <button id="start">Démarrer (Espace)</button><span id="rounds" class="small"></span>
+  </div>
+  <div class="players">
+    <section class="card" id="p0"><h2>JOUEUR 1</h2>
+      <div class="score" id="score0">0 %</div>
+      <div class="track"><div class="fill" id="bar0"></div><div class="mark"></div></div>
+      <div class="track hold"><div class="fill" id="hold0"></div></div>
+      <div class="small" id="pose0"></div><div class="small" id="help0"></div>
+      <div class="match"><span class="small" id="record0"></span><strong id="total0">0</strong></div>
+    </section>
+    <section class="card" id="p1"><h2>JOUEUR 2</h2>
+      <div class="score" id="score1">0 %</div>
+      <div class="track"><div class="fill" id="bar1"></div><div class="mark"></div></div>
+      <div class="track hold"><div class="fill" id="hold1"></div></div>
+      <div class="small" id="pose1"></div><div class="small" id="help1"></div>
+      <div class="match"><span class="small" id="record1"></span><strong id="total1">0</strong></div>
+    </section>
+  </div>
+  <p class="small">Cible de la démo : placez votre pièce à la pose cible pour monter au-dessus de la ligne blanche (seuil) et tenez la barre blanche jusqu'au bout. Le premier gagne 3 points, une arrivée simultanée donne 1 point chacun.</p>
+  <script type="module" src="./duel-demo.js"></script>
+</body>
+</html>
