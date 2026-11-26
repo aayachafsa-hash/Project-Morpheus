@@ -2,18 +2,19 @@
 // RoundState decides who won ONE round; ScoreManager turns round results into a match.
 //
 // Modes
-//   classic   : `rounds` (3, 5 or 7) scheduled rounds. Each round win = one point on the
-//               tally. After the scheduled rounds the higher tally wins the match.
-//               Equal tally: drawRule 'draw' (match ends as a draw) or
+//   classic   : `rounds` (3, 5 or 7) scheduled rounds. Points are only ever ADDED:
+//                 round win  -> `win`  points (default 3) for the winner, `lose` (0) for the other
+//                 round tie  -> `draw` points (default 1) for EACH player
+//               After the scheduled rounds the higher total wins the match.
+//               Equal total: drawRule 'draw' (match ends as a draw, team decision) or
 //               'suddenDeath' (extra rounds until one player leads).
-//   survival  : each player starts with `startingPoints`. A round win takes ONE point from
-//               the opponent. The match ends when a player reaches zero.
-//
-// Values still to confirm with the team (kept configurable, see CONFIG.duel.match):
-//   startingPoints (survival), drawRule (classic), and the round tie rule in RoundState.
+//   survival  : (kept, not yet confirmed by the team) each player starts with
+//               `startingPoints`; a round win takes ONE point from the opponent (never below 0);
+//               the match ends when a player reaches zero.
 //
 // A round result is { winners: number[], tie: boolean, replay: boolean } as produced by
-// RoundState. A replay round (nobody scores) does not use up a scheduled round.
+// RoundState. Two winners = the round was a tie that gives each player the draw points.
+// A replay round (nobody scores) does not use up a scheduled round.
 
 const MODES = new Set(['classic', 'survival']);
 const CLASSIC_ROUNDS = new Set([3, 5, 7]);
@@ -23,6 +24,7 @@ export function createScoreManager({
   rounds = 3,
   startingPoints = 5,
   drawRule = 'draw',
+  points: roundPoints = { win: 3, draw: 1, lose: 0 },
 } = {}) {
   if (!MODES.has(mode)) throw new Error(`Unknown match mode "${mode}".`);
   if (mode === 'classic' && !CLASSIC_ROUNDS.has(rounds)) throw new Error('Classic rounds must be 3, 5 or 7.');
@@ -30,12 +32,20 @@ export function createScoreManager({
     throw new Error('Survival startingPoints must be a positive integer.');
   }
   if (drawRule !== 'draw' && drawRule !== 'suddenDeath') throw new Error('drawRule must be "draw" or "suddenDeath".');
+  for (const key of ['win', 'draw', 'lose']) {
+    if (!(Number.isFinite(roundPoints[key]) && roundPoints[key] >= 0)) {
+      throw new Error(`points.${key} must be a number >= 0 (scores never go negative).`);
+    }
+  }
 
-  let wins, points, roundsPlayed, over, matchWinner, draw, history, recorded;
+  let scores, wins, draws, losses, remaining, roundsPlayed, over, matchWinner, draw, history, recorded;
 
   function reset() {
-    wins = [0, 0];
-    points = [startingPoints, startingPoints];
+    scores = [0, 0];            // classic: accumulated 3/1/0 points
+    wins = [0, 0];              // rounds won
+    draws = [0, 0];             // rounds tied
+    losses = [0, 0];            // rounds lost
+    remaining = [startingPoints, startingPoints]; // survival: points left
     roundsPlayed = 0;
     over = false;
     matchWinner = null;
@@ -53,15 +63,31 @@ export function createScoreManager({
 
   function checkClassic() {
     if (roundsPlayed < rounds) return;
-    if (wins[0] !== wins[1]) finish(wins[0] > wins[1] ? 0 : 1);
+    if (scores[0] !== scores[1]) finish(scores[0] > scores[1] ? 0 : 1);
     else if (drawRule === 'draw') finish(null);
-    // suddenDeath: keep playing extra rounds until the tally differs
+    // suddenDeath: keep playing extra rounds until the totals differ
   }
 
   function checkSurvival() {
-    const empty = [0, 1].filter(i => points[i] <= 0);
+    const empty = [0, 1].filter(i => remaining[i] <= 0);
     if (empty.length === 2) finish(null);
     else if (empty.length === 1) finish(1 - empty[0]);
+  }
+
+  function applyClassic(winners) {
+    if (winners.length === 2) { // tie: each player gets the draw points
+      for (const i of [0, 1]) { scores[i] += roundPoints.draw; draws[i]++; }
+    } else if (winners.length === 1) {
+      const [winner] = winners;
+      scores[winner] += roundPoints.win;
+      scores[1 - winner] += roundPoints.lose;
+      wins[winner]++;
+      losses[1 - winner]++;
+    }
+  }
+
+  function applySurvival(winners) {
+    for (const winner of winners) remaining[1 - winner] = Math.max(0, remaining[1 - winner] - 1);
   }
 
   return {
@@ -77,20 +103,17 @@ export function createScoreManager({
       if (result.replay) return false;
       roundsPlayed++;
       history.push([...result.winners]);
-      for (const winner of result.winners) {
-        if (mode === 'classic') wins[winner]++;
-        else points[1 - winner] = Math.max(0, points[1 - winner] - 1);
-      }
-      if (mode === 'classic') checkClassic();
-      else checkSurvival();
+      if (mode === 'classic') { applyClassic(result.winners); checkClassic(); }
+      else { applySurvival(result.winners); checkSurvival(); }
       return true;
     },
     getState() {
       return {
         mode, over, matchWinner, draw, roundsPlayed, drawRule,
         roundsTotal: mode === 'classic' ? rounds : null,
-        wins: [...wins],
-        points: [...points],
+        scores: mode === 'classic' ? [...scores] : null,    // classic totals (3/1/0)
+        points: mode === 'survival' ? [...remaining] : null, // survival points left
+        wins: [...wins], draws: [...draws], losses: [...losses],
         history: history.map(winners => [...winners]),
       };
     },

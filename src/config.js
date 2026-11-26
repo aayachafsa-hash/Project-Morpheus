@@ -41,14 +41,22 @@ export const CONFIG = {
   initial: { x: -1.5, height: 0.55, z: -1.5, rotation: [0.35, 1.1, -0.4] },
 
   duel: {
-    countdown: 3, threshold: 90, holdTime: 0.5,
-    tie: 'replay', // 'replay' | 'higherScore' | 'both' : à décider avec l'équipe
+    countdown: 3,
+    threshold: 90,
+    holdTime: 0.3,   // 0.3 s tenu, pour faciliter le jeu (décision d'équipe)
+    tie: 'both',     // égalité sur un round : un point chacun (décision d'équipe)
+    match: {
+      mode: 'classic',
+      rounds: 3,
+      startingPoints: 5,                 // mode Survie, pas encore confirmé
+      drawRule: 'draw',                  // total égal après les manches : match nul (décision d'équipe)
+      points: { win: 3, draw: 1, lose: 0 }, // jamais de score négatif
+    },
     controls: {
       p1: { left: 'KeyA', right: 'KeyD', forward: 'KeyW', back: 'KeyS', up: 'KeyR', down: 'KeyF',
             rotateLeft: 'KeyQ', rotateRight: 'KeyE', precision: 'ShiftLeft', cycleAxis: 'KeyT', switchObject: 'Tab' },
       p2: { left: 'ArrowLeft', right: 'ArrowRight', forward: 'ArrowUp', back: 'ArrowDown', up: 'KeyI', down: 'KeyK',
             rotateLeft: 'KeyJ', rotateRight: 'KeyL', precision: 'ShiftRight', cycleAxis: 'KeyO', switchObject: 'Enter' },
     },
-        match: { mode: 'classic', rounds: 3, startingPoints: 5, drawRule: 'draw' }, // à confirmer en équipe
   },
 };

@@ -20,7 +20,9 @@
 //                                      roundId, paused, result, scores: [n, n], axes: ['Y', 'Y'] }
 //   ui.showDuelResult(result)  result = { winners: number[], tie, replay }  (called once per round)
 //   ui.setMatchState(match)  match = { mode, over, matchWinner, draw, roundsPlayed, roundsTotal,
-//                                      wins: [n, n], points: [n, n], history }  (from ScoreManager)
+//                                      scores: [n, n]   (classic totals: win 3 / draw 1 / lose 0),
+//                                      points: [n, n]   (survival points left, null in classic),
+//                                      wins, draws, losses: [n, n], history }  (from ScoreManager)
 //
 // Match mode comes from CONFIG.duel.match, overridable in the URL for tests:
 //   ?mode=duel&match=survival   ?mode=duel&match=classic&rounds=5
