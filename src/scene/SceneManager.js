@@ -4,6 +4,7 @@ import { createEnvironment } from './Environment.js?room-glb';
 import { addLighting } from './Lighting.js';
 import { loadSceneAssets, loadPuzzleGeometry, replacePuzzleGeometry } from './AssetLoader.js';
 import { createSelectionGizmo } from './SelectionGizmo.js';
+import { createDuelRig } from './DuelRig.js';
 
 import { createProjectorAtmosphere } from './ProjectorAtmosphere.js';
 import { createFireflies } from './Fireflies.js';
@@ -83,6 +84,7 @@ export async function createScene(stage,onProgress=()=>{},initialLevel) {
 
   return {
     canvas, camera, piece, pieces: [piece], spotlight, resize, invalidateRender,
+    duelRig: createDuelRig({ renderer, scene, soloCamera: camera, soloPiece: piece, atmosphere, fireflies, invalidateSolo: invalidateRender }),
     prepareLevel(level){return loadPuzzleGeometry(level);},
     replaceLevel(geometry,level){replacePuzzleGeometry(piece,geometry,level);invalidateRender();},
     invalidateShadows() { renderer.shadowMap.needsUpdate = true; needsRender = true; },

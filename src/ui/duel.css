@@ -1,0 +1,98 @@
+/* Duel mode (split screen). Uses the existing tokens only. */
+.mp-duel { position: fixed; inset: 0; z-index: 3; pointer-events: none; color: var(--mp-parchment); }
+/* One room, two players. The canvas draws each half separately, so the seam is hidden here: both halves fall
+   to the same dim wall tone at the centre (the stretch between two light cones), and each half keeps its own
+   warm light pool. Tune with the --duel-* variables. No blend modes: .mp-duel is its own stacking context. */
+.mp-duel {
+  --duel-seam-dim: .62;      /* how dark the wall is exactly on the seam (0 hides nothing, 1 is black) */
+  --duel-seam-reach: 30%;    /* how far each side of the seam the falloff travels */
+  --duel-pool: 15%;          /* strength of each half's light pool */
+  --duel-pool-tint: 9%;      /* how much of the player colour the pool carries */
+}
+.mp-duel__room { position: absolute; inset: 0; }
+.mp-duel__room::before, .mp-duel__room::after { content: ""; position: absolute; inset: 0; }
+/* Wall between the two light cones: symmetric, so the left and right halves meet at the same tone. */
+.mp-duel__room::before {
+  background:
+    linear-gradient(90deg, transparent calc(50% - var(--duel-seam-reach)),
+      color-mix(in srgb, var(--mp-bg-0) calc(var(--duel-seam-dim) * 100%), transparent) calc(50% - 2%),
+      color-mix(in srgb, var(--mp-bg-0) calc(var(--duel-seam-dim) * 100%), transparent) calc(50% + 2%),
+      transparent calc(50% + var(--duel-seam-reach))),
+    radial-gradient(ellipse 14% 62% at 50% 46%, color-mix(in srgb, var(--mp-bg-0) 30%, transparent), transparent);
+}
+/* Two light sources: one soft pool per half, centred where each figure sits, nudged by its player colour. */
+.mp-duel__room::after {
+  background:
+    radial-gradient(ellipse 30% 46% at 25% 44%,
+      color-mix(in srgb, color-mix(in srgb, var(--mp-gold-bright) calc(100% - var(--duel-pool-tint)), var(--mp-p1)) var(--duel-pool), transparent), transparent 72%),
+    radial-gradient(ellipse 30% 46% at 75% 44%,
+      color-mix(in srgb, color-mix(in srgb, var(--mp-gold-bright) calc(100% - var(--duel-pool-tint)), var(--mp-p2)) var(--duel-pool), transparent), transparent 72%);
+}
+/* The seam marker stays, but as a faint hairline instead of a bright wall-splitting rule. */
+.mp-duel__divider {
+  position: absolute; inset-block: 0; inset-inline-start: 50%; inline-size: 1px; transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--mp-bronze) 70%, transparent) 20%,
+    color-mix(in srgb, var(--mp-gold) 60%, transparent) 50%, color-mix(in srgb, var(--mp-bronze) 70%, transparent) 80%, transparent);
+  opacity: .35;
+}
+.mp-duel__centre {
+  position: absolute; inset-block-start: var(--mp-hud-margin); inset-inline-start: 50%; transform: translateX(-50%);
+  display: grid; justify-items: center; gap: var(--mp-space-1); padding: var(--mp-space-3) var(--mp-space-4);
+  inline-size: clamp(8.5rem, 13vw, 11rem); background: var(--mp-bg-2); backdrop-filter: none; text-align: center;
+}
+.mp-duel__title { letter-spacing: var(--mp-ls-label); text-transform: uppercase; color: var(--mp-gold); }
+.mp-duel__round, .mp-duel__level { letter-spacing: var(--mp-ls-caption); text-transform: uppercase; color: var(--mp-tan); }
+.mp-duel__score { font: var(--mp-fw-light) var(--mp-fs-hud-numeral) / 1 var(--mp-font-ui); font-variant-numeric: tabular-nums; }
+.mp-duel__timer { font: var(--mp-fw-label) var(--mp-fs-label) / 1 var(--mp-font-ui); font-variant-numeric: tabular-nums; letter-spacing: var(--mp-ls-label); color: var(--mp-tan); }
+.mp-duel__timer[data-low="true"] { color: var(--mp-fail-text); }
+.mp-duel__centre .mp-target-tile { padding: var(--mp-space-2); margin-block-start: var(--mp-space-1); }
+.mp-duel__card {
+  position: absolute; inset-block-start: calc(var(--mp-hud-margin) + var(--mp-hit) + var(--mp-space-3)); background: var(--mp-bg-2);
+  backdrop-filter: none; min-inline-size: 8rem; padding: var(--mp-space-3);
+}
+.mp-duel__card[data-player="p1"] { inset-inline-start: var(--mp-hud-margin); }
+.mp-duel__card[data-player="p2"] { inset-inline-end: var(--mp-hud-margin); }
+.mp-duel__card .mp-stat { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--mp-space-4); }
+.mp-duel__card .mp-stat__value { font-size: var(--mp-fs-hud-numeral); inline-size: 5ch; text-align: end; }
+.mp-duel__card[data-solved="true"] { border-color: var(--mp-gold); box-shadow: var(--mp-shadow-panel), var(--mp-glow-gold); }
+.mp-duel__hints {
+  position: absolute; inset-block-end: var(--mp-hud-margin); transform: translateX(-50%);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--mp-space-1) var(--mp-space-4);
+  padding: var(--mp-space-1) var(--mp-space-3); border: var(--mp-border-width) solid var(--mp-bronze);
+  border-radius: var(--mp-r-lg); background: var(--mp-hint-surface); max-inline-size: 46%;
+}
+.mp-duel__hints[data-player="p1"] { inset-inline-start: 25%; border-color: color-mix(in srgb, var(--mp-p1) 55%, transparent); }
+.mp-duel__hints[data-player="p2"] { inset-inline-start: 75%; border-color: color-mix(in srgb, var(--mp-p2) 55%, transparent); }
+.mp-duel__countdown, .mp-duel__banner {
+  position: absolute; inset-inline: 0; text-align: center; text-shadow: var(--mp-shadow-wordmark);
+}
+.mp-duel__countdown { inset-block-start: 42%; font-size: clamp(3rem, 9vw, 7rem); color: var(--mp-gold-bright); }
+.mp-duel__banner { inset-block-start: 38%; color: var(--mp-gold-bright); text-transform: uppercase; letter-spacing: var(--mp-ls-title); }
+
+/* The solo HUD gives way to the duel HUD. */
+.mp-duel-mode .study, .mp-duel-mode .mp-binding-hints, .mp-duel-mode #control-hints, .mp-duel-mode header h1,
+.mp-duel-mode .actions .mp-toolbar__item:has(#reset), .mp-duel-mode .actions .mp-toolbar__item:has(#mp-settings) { display: none; }
+
+/* Dialogs */
+.mp-duel-rounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--mp-space-2); }
+.mp-duel-controls { display: grid; grid-template-columns: 1fr 1fr; gap: var(--mp-space-3); }
+.mp-duel-controls__player { padding: var(--mp-space-3); border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-sm); }
+.mp-duel-controls__player[data-player="p1"] h3 { color: var(--mp-p1); }
+.mp-duel-controls__player[data-player="p2"] h3 { color: var(--mp-p2); }
+.mp-duel-controls__player h3 { margin: 0 0 var(--mp-space-2); }
+.mp-duel-controls dl { display: grid; grid-template-columns: auto 1fr; gap: var(--mp-space-2) var(--mp-space-3); margin: 0; align-items: center; }
+.mp-duel-controls dt { color: var(--mp-tan); font: var(--mp-fw-body) var(--mp-fs-caption) / 1.3 var(--mp-font-ui); }
+.mp-duel-controls dd { margin: 0; display: flex; flex-wrap: wrap; gap: var(--mp-space-1); }
+.mp-duel-table { inline-size: 100%; border-spacing: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.mp-duel-table :is(th, td) { padding: var(--mp-space-2); border-bottom: var(--mp-border-width) solid var(--mp-border-soft); }
+.mp-duel-table thead th { color: var(--mp-tan); font: var(--mp-fw-label) var(--mp-fs-caption) / 1 var(--mp-font-ui); letter-spacing: var(--mp-ls-caption); text-transform: uppercase; }
+.mp-duel-table tbody th { text-align: start; letter-spacing: var(--mp-ls-label); }
+.mp-duel-table tr[data-player="p1"] th { color: var(--mp-p1); }
+.mp-duel-table tr[data-player="p2"] th { color: var(--mp-p2); }
+.mp-duel-table tr[data-winner="true"] td { color: var(--mp-gold-bright); }
+.mp-duel-scoreline { margin: 0; text-align: center; color: var(--mp-tan); letter-spacing: var(--mp-ls-label); font-variant-numeric: tabular-nums; }
+.mp-duel-scoreline--big { color: var(--mp-parchment); font: var(--mp-fw-light) var(--mp-fs-numeral) / 1 var(--mp-font-ui); letter-spacing: normal; }
+@media (max-width: 40rem) {
+  .mp-duel-controls { grid-template-columns: 1fr; }
+  .mp-duel__hints { max-inline-size: 48%; padding-inline: var(--mp-space-2); }
+}

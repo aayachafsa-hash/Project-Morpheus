@@ -10,6 +10,8 @@ import { createInputLayer } from '../gameplay/RotationInput.js';
 import { createRotationController } from '../gameplay/RotationController.js';
 import { createAssistance } from '../gameplay/Assistance.js';
 import { MAGNET_START } from '../gameplay/AssistConstants.js';
+import { createShadowSystem } from '../gameplay/ShadowSystem.js';
+import { createDuelSession } from './DuelSession.js';
 
 export async function startGameSession(view,shadows,ui,createInputSettings) {
   const pieces=view.pieces??[view.piece];
@@ -41,8 +43,10 @@ export async function startGameSession(view,shadows,ui,createInputSettings) {
     updatingInput=true;
     try{controls.accept(action);}finally{updatingInput=false;}
   }
+  let duel=null;
   const input=createInputLayer(view.canvas,accept,preferences.settings,preferences.bindings,
-    {pieceCount:pieces.length,isEnabled:()=>flow.canSimulate&&!fault});
+    {pieceCount:pieces.length,isEnabled:()=>flow.canSimulate&&!fault&&!duel?.active});
+  duel=createDuelSession({view,flow,ui,settings:preferences.settings,levels:LEVELS,loadMask:loadTargetMask,createShadows:createShadowSystem});
   const selection={mode:'rotate',active:false,direction:0,paused:false,piece:pieces[0]};
   let running=false;
   flow.subscribe(()=>{
@@ -58,6 +62,7 @@ export async function startGameSession(view,shadows,ui,createInputSettings) {
   controls.setEnabled(false);
 
   function reset(){
+    duel.exit();
     epoch++;input.clear();controls.reset();view.resetSolvedPulse();
     clockMs=0;assistance.reset(clockMs);tracker.reset();
     pieces.forEach((p,i)=>{
@@ -103,7 +108,7 @@ export async function startGameSession(view,shadows,ui,createInputSettings) {
     else usedAssist=true;
     input.clear();assistance.assist(clockMs);
   }
-  ui.bindControls({reset,resetOrientation,assist:()=>assist(),showSolution:()=>assist(true),cancelCapture:preferences.cancelCapture,prepareLevel,loadLevel,progress,activeLevel:()=>level,
+  ui.bindControls({duel,reset,resetOrientation,assist:()=>assist(),showSolution:()=>assist(true),cancelCapture:preferences.cancelCapture,prepareLevel,loadLevel,progress,activeLevel:()=>level,
     hasMoves:()=>pieces.some((p,i)=>p.mesh.position.distanceToSquared(initialPositions[i])>1e-12||
       p.mesh.quaternion.angleTo(initialRotations[i])>1e-6),
     check(){scoreAt=Math.min(scoreAt,clockMs-SCORING.UPDATE_MS);},
@@ -118,6 +123,7 @@ export async function startGameSession(view,shadows,ui,createInputSettings) {
   view.setAnimationLoop(()=>{
     const raw=clock.getDelta(),dt=Math.min(raw,.05),now=performance.now();
     if(document.hidden||flow.state==='mainMenu')return;
+    if(duel.active){duel.frame(dt,now);return;}
     if(ui.debug){
       fpsFrames++;fpsTime+=raw;
       if(fpsTime>=1){ui.setPerformance(`${Math.round(fpsFrames/fpsTime)} FPS`);fpsFrames=0;fpsTime=0;}

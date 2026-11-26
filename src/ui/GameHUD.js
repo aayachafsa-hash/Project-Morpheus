@@ -8,6 +8,7 @@ import { createGameState } from '../app/GameState.js';
 import { createGameScreens } from './GameScreens.js';
 import { paintReference } from './TargetThumbnail.js';
 import { createAuthoringPanel } from './AuthoringPanel.js';
+import { createDuelHud } from './DuelHud.js';
 
 export const ENABLE_CHECK_BUTTON = false;
 const $ = selector => document.querySelector(selector);
@@ -38,6 +39,7 @@ export function createUI() {
   const hints=createControlHints($('.mp-binding-hints'));
   const flow=createGameState();
   const stage=$('#stage');
+  const duelHud=createDuelHud($('.mp-game-layer'));
   let screens, authoringPanel;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let displayed=0, from=0, target=0, started=0, painted;
@@ -56,6 +58,10 @@ export function createUI() {
       menu.bindButtons({...actions,settings:screens.settings,togglePause:screens.togglePause});
     },
     ready(){screens.ready();},
+    duelHud,
+    setDuelMode(on){document.body.classList.toggle('mp-duel-mode',on);duelHud.setVisible(on);},
+    showDuelRound(info){screens.showDuelRound(info);},
+    showDuelSummary(summary){screens.showDuelSummary(summary);},
     setPaused:menu.setPaused,
     confirmDefaults(accept){screens.confirmDefaults(accept);},
     showResult(state,level,completion){screens.showResult(state,targetImage,level,completion);},

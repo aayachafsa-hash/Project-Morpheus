@@ -3,6 +3,8 @@ import { h } from './dom.js';
 import { controlsReference } from './ControlHints.js';
 import { createDialogManager } from './DialogManager.js';
 import { getScreenTransition } from './ScreenTransition.js';
+import { menuBehaviour } from './hoverFocus.js';
+import { createDuelScreens } from './DuelScreens.js';
 
 import { nextLevel, STARS_ENABLED, USE_GALLERY_MESHES } from '../gameplay/LevelRegistry.js';
 import { starsFor } from '../gameplay/LevelProgress.js';
@@ -22,6 +24,8 @@ export function createGameScreens(flow, canvas, game, menu) {
   const creditsLink=credits.querySelector('.gallery-link');
   let actions, reference, settingsSession, atmosphere, changing=false;
   let resultsTimer;
+  const duelUi=createDuelScreens({dialogs,flow,canvas,confirm:(...args)=>confirm(...args),change:(...args)=>change(...args),
+    leave:(...args)=>leave(...args),getDuel:()=>actions.duel,isChanging:()=>changing});
 
   async function change(apply, focus) {
     if(changing)return;
@@ -89,6 +93,7 @@ export function createGameScreens(flow, canvas, game, menu) {
 
   function openPause() {
     if(flow.state!=='playing'||changing)return;
+    if(actions.duel?.active)return duelUi.openPause();
     flow.go('paused');
     const resume=goldButton({label:'Resume',onClick:()=>dialogs.close('pause')});
     dialogs.open('pause',{heading:title('Paused'),primary:resume,menu:true,
@@ -135,17 +140,10 @@ export function createGameScreens(flow, canvas, game, menu) {
   }
 
   const play=goldButton({label:'Play',onClick:()=>leave('playing',actions.progress.resume())});
-  const list=rows(play,menuItem({label:'Levels',onClick:openLevels}),menuItem({label:'Settings',onClick:openSettings}),menuItem({label:'Credits',onClick:openCredits}));
+  const list=rows(play,menuItem({label:'Duel',onClick:duelUi.openSetup}),menuItem({label:'Levels',onClick:openLevels}),menuItem({label:'Settings',onClick:openSettings}),menuItem({label:'Credits',onClick:openCredits}));
   menu.append(glassPanel({className:'mp-main-menu__content',children:[
     h('h1',{class:'mp-text-display'},'Morpheus'),list]}));
-  list.addEventListener('keydown',event=>{
-    if(!['ArrowUp','ArrowDown'].includes(event.key))return;
-    const buttons=[...list.querySelectorAll('button')];
-    const index=buttons.indexOf(document.activeElement);
-    if(index<0)return;
-    event.preventDefault();
-    buttons[(index+(event.key==='ArrowDown'?1:buttons.length-1))%buttons.length].focus();
-  });
+  menuBehaviour(list, { home: () => play }); // PLAY is the default row: active whenever no other row is hovered
   flow.subscribe(()=>{
     const visible=flow.state==='mainMenu';
     if(menu.hidden===visible){
@@ -172,6 +170,8 @@ export function createGameScreens(flow, canvas, game, menu) {
     ready(){flow.go('mainMenu');play.focus();},
     reset(){clearTimeout(resultsTimer);},
     showResult,
+    showDuelRound:duelUi.showRound,
+    showDuelSummary:duelUi.showSummary,
     confirmDefaults(accept){confirm('Reset to defaults?', 'Your control preferences will return to their defaults.', 'Reset',accept);},
     setReference(bindings,count,tier){
       reference=controlsReference(bindings,count,tier);
