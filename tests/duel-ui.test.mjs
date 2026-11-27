@@ -225,17 +225,17 @@ test('round results: table matches the reference sheet and Next round continues'
   const s = screens(); s.flow.go('playing'); s.flow.go('solved');
   s.ui.showRound({ record: record('p1'), score: [2, 1], number: 3, total: 5, over: false, summary: null });
   const text = s.dialog().textContent;
-  for (const word of ['Player 1 wins the round', 'Round 3 of 5', 'Teapot', '12.4s', '100%', '86%', '+1', 'P1 2 – 1 P2', 'Next round']) assert.ok(text.includes(word), word);
+  for (const word of ['Player 1 wins the round', 'Round 3 of 5', 'Teapot', '12.4s', '100%', '86%', '+3', 'P1 2 – 1 P2', 'Next round']) assert.ok(text.includes(word), word);
   s.click('Next round');
   await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(s.calls[0], ['nextRound']);
 });
-test('draw round says so and gives nobody a point', () => {
+test('draw round says so and gives each player 1 point', () => {
   const s = screens(); s.flow.go('playing'); s.flow.go('solved');
   s.ui.showRound({ record: record('draw', { solvedMs: 9000 }, { best: 100, solvedMs: 9000 }), score: [0, 0], number: 1, total: 3, over: false, summary: null });
   const text = s.dialog().textContent;
   assert.ok(text.includes('Draw') && text.includes('same time'));
-  assert.ok(!text.includes('+1'));
+  assert.ok(text.includes('+1') && !text.includes('+3'));
 });
 test('last round opens the match summary with score, averages, best times and rounds won', () => {
   const s = screens(); s.flow.go('playing'); s.flow.go('solved');
