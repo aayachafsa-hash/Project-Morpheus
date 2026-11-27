@@ -1,6 +1,6 @@
 import { goldButton, keyCap, laurelTitle, menuItem } from './index.js';
 import { h } from './dom.js';
-import { DEFAULT_ROUNDS, DUEL_ROUND_OPTIONS, formatClock, formatSeconds } from '../gameplay/DuelRules.js';
+import { DEFAULT_ROUNDS, DUEL_ROUND_OPTIONS, formatClock, formatSeconds, roundPoints } from '../gameplay/DuelRules.js';
 import { DUEL_PLAYERS } from '../gameplay/DuelControls.js';
 
 const title = text => h('h2', { class: 'mp-text-title' }, text);
@@ -84,7 +84,7 @@ export function createDuelScreens({ dialogs, flow, change, leave, confirm, canva
       h('td', {}, record[id].solvedMs != null ? '✓' : '—'),
       h('td', {}, formatSeconds(record[id].solvedMs)),
       h('td', {}, `${Math.round(record[id].best)}%`),
-      h('td', {}, record.winner === id ? '+1' : '0'));
+      h('td', {}, roundPoints(record.winner, id) ? `+${roundPoints(record.winner, id)}` : '0'));
     const next = goldButton({
       label: over ? 'Match summary' : 'Next round',
       onClick: () => {

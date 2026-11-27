@@ -28,21 +28,31 @@ export function resolveRound({ p1, p2, timedOut = false }) {
   return Math.abs(p1.best - p2.best) < TIE_MARGIN ? 'draw' : p1.best > p2.best ? 'p1' : 'p2';
 }
 
+/** Team decision: round win 3 points, draw 1 point for EACH player, loss 0 (scores never go negative). */
+export const DUEL_POINTS = Object.freeze({ win: 3, draw: 1, lose: 0 });
+
+/** Points one player takes from a round whose result is 'p1' | 'p2' | 'draw'. */
+export function roundPoints(winner, id) {
+  if (winner === 'draw') return DUEL_POINTS.draw;
+  return winner === id ? DUEL_POINTS.win : DUEL_POINTS.lose;
+}
+
 /**
- * Classic Duel: best of N. First to a majority ends the match early; draws score nothing.
- * If all N rounds are played and the score is level, the match is a draw.
+ * Classic Duel: N scheduled rounds (3, 5 or 7). Every scheduled round is played; each round gives
+ * win 3 / draw 1 each / lose 0. After the last round the higher total wins; equal totals = draw.
  */
 export function createDuelMatch(totalRounds = DEFAULT_ROUNDS) {
   if (!DUEL_ROUND_OPTIONS.includes(totalRounds)) throw new RangeError(`Best of ${totalRounds} is not available`);
-  const winsNeeded = Math.floor(totalRounds / 2) + 1;
   const rounds = [];
   const wins = { p1: 0, p2: 0 };
-  const isOver = () => wins.p1 >= winsNeeded || wins.p2 >= winsNeeded || rounds.length >= totalRounds;
-  const winner = () => !isOver() ? null : wins.p1 === wins.p2 ? 'draw' : wins.p1 > wins.p2 ? 'p1' : 'p2';
+  const points = { p1: 0, p2: 0 };
+  const isOver = () => rounds.length >= totalRounds;
+  const winner = () => !isOver() ? null : points.p1 === points.p2 ? 'draw' : points.p1 > points.p2 ? 'p1' : 'p2';
   return {
-    totalRounds, winsNeeded,
+    totalRounds,
     get rounds() { return rounds.slice(); },
-    get score() { return [wins.p1, wins.p2]; },
+    /** Total points [p1, p2] (win 3 / draw 1 each / lose 0). */
+    get score() { return [points.p1, points.p2]; },
     get over() { return isOver(); },
     get roundNumber() { return Math.min(totalRounds, rounds.length + (isOver() ? 0 : 1)); },
     get winner() { return winner(); },
@@ -51,6 +61,7 @@ export function createDuelMatch(totalRounds = DEFAULT_ROUNDS) {
       if (isOver()) throw new Error('The match is already over');
       if (!['p1', 'p2', 'draw'].includes(round.winner)) throw new RangeError('A round needs a winner or a draw');
       rounds.push(Object.freeze({ ...round }));
+      for (const id of ['p1', 'p2']) points[id] += roundPoints(round.winner, id);
       if (round.winner !== 'draw') wins[round.winner]++;
     },
     summary() {
@@ -60,7 +71,7 @@ export function createDuelMatch(totalRounds = DEFAULT_ROUNDS) {
         return times.length ? Math.min(...times) : null;
       };
       return {
-        mode: `Classic Duel (Best of ${totalRounds})`, winner: winner(), score: [wins.p1, wins.p2],
+        mode: `Classic Duel (Best of ${totalRounds})`, winner: winner(), score: [points.p1, points.p2],
         roundsPlayed: rounds.length, draws: rounds.filter(round => round.winner === 'draw').length,
         averageMatch: { p1: average('p1'), p2: average('p2') },
         bestTimeMs: { p1: fastest('p1'), p2: fastest('p2') },

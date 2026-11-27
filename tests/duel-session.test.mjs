@@ -103,20 +103,20 @@ test('first player to hold the solved shadow wins the round and the results appe
   t.mock.timers.tick(RESULT_DELAY_MS + 10);
   const [info] = ctx.log.rounds;
   assert.equal(info.record.winner, 'p1');
-  assert.deepEqual(info.score, [1, 0]);
+  assert.deepEqual(info.score, [3, 0]);
   assert.equal(info.over, false);
   assert.ok(info.record.p1.solvedMs > 0 && info.record.p2.solvedMs === null);
   assert.ok(info.record.p2.best >= 50 && info.record.p2.best < 100, `loser best ${info.record.p2.best}`);
 });
 
-test('both solving together is a draw that scores nothing', async t => {
+test('both solving together is a draw that gives each player 1 point', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const ctx = setup(); await startMatch(ctx);
   ctx.behaviour.p1 = 'solved'; ctx.behaviour.p2 = 'solved';
   await run(ctx.duel, 6);
   t.mock.timers.tick(RESULT_DELAY_MS + 10);
   assert.equal(ctx.log.rounds[0].record.winner, 'draw');
-  assert.deepEqual(ctx.log.rounds[0].score, [0, 0]);
+  assert.deepEqual(ctx.log.rounds[0].score, [1, 1]);
 });
 
 test('time out: the closer shadow takes the round', async t => {
@@ -131,7 +131,7 @@ test('time out: the closer shadow takes the round', async t => {
   assert.equal(ctx.log.hud.setTimer.at(-1)[0], 0);
 });
 
-test('best of 3: next round loads a new puzzle, and 2-0 ends the match with a summary', async t => {
+test('3 rounds: each round loads a new puzzle, and the summary appears only after the last one', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const ctx = setup(); await startMatch(ctx);
   ctx.behaviour.p1 = 'solved';
@@ -141,10 +141,13 @@ test('best of 3: next round loads a new puzzle, and 2-0 ends the match with a su
   assert.equal(ctx.log.hud.setRound.at(-1)[0].number, 2);
   assert.notEqual(ctx.log.hud.setRound[0][0].levelName, ctx.log.hud.setRound.at(-1)[0].levelName, 'different puzzle');
   await run(ctx.duel, 6); t.mock.timers.tick(RESULT_DELAY_MS + 10);
+  assert.equal(ctx.log.rounds.at(-1).over, false, 'two wins out of three: the third round is still scheduled');
+  await ctx.duel.nextRound(); ctx.flow.go('playing');
+  await run(ctx.duel, 6); t.mock.timers.tick(RESULT_DELAY_MS + 10);
   const last = ctx.log.rounds.at(-1);
   assert.equal(last.over, true);
   assert.equal(last.summary.winner, 'p1');
-  assert.deepEqual(last.summary.score, [2, 0]);
+  assert.deepEqual(last.summary.score, [9, 0]);
   assert.equal(last.summary.mode, 'Classic Duel (Best of 3)');
   assert.ok(last.summary.bestTimeMs.p1 > 0 && last.summary.bestTimeMs.p2 === null);
 });
