@@ -1,7 +1,10 @@
 import { h } from './dom.js';
+import { menuBehaviour } from './hoverFocus.js';
 
 export function createDialogManager(flow, background) {
   const stack = [];
+  // per dialog element: do ArrowUp/Down walk its rows, and which row is its default? (reusable dialogs are opened more than once)
+  const menus = new WeakMap();
   const sync = () => {
     for (const el of background) {
       el.inert = Boolean(stack.length);
@@ -34,6 +37,7 @@ export function createDialogManager(flow, background) {
       if (!flow.open(id)) return;
       const opener = document.activeElement;
       dialog.classList.add('mp-dialog');
+      dialog.classList.toggle('mp-dialog--menu', menu); // reusable dialogs are opened more than once
       dialog.setAttribute('aria-modal','true');
       dialog.setAttribute('role','dialog');
       heading.id ||= 'mp-dialog-title-' + id;
@@ -43,16 +47,11 @@ export function createDialogManager(flow, background) {
       stack.push({id,dialog,opener,onClose,onDismiss});
       dialog.showModal();
       sync();
-      (primary ?? dialog.querySelector('button, a, input'))?.focus();
+      const home = primary ?? dialog.querySelector('button, a, input');
+      home?.focus();
       dialog.oncancel = event => { event.preventDefault(); close(id, true); };
-      dialog.onkeydown = event => {
-        if (!menu || !['ArrowUp','ArrowDown'].includes(event.key)) return;
-        const items = [...dialog.querySelectorAll('button:not(:disabled):not([aria-disabled="true"])')];
-        if (!items.includes(document.activeElement)) return;
-        event.preventDefault();
-        const offset = event.key === 'ArrowDown' ? 1 : -1;
-        items[(items.indexOf(document.activeElement) + offset + items.length) % items.length]?.focus();
-      };
+      if (!menus.has(dialog)) menuBehaviour(dialog, { arrows: () => menus.get(dialog).arrows, home: () => menus.get(dialog).home });
+      menus.set(dialog, { arrows: menu, home });
       if (!dialog.dataset.mpReusable) dialog.addEventListener('close',()=>{
         Promise.allSettled(dialog.getAnimations().map(animation=>animation.finished)).then(()=>dialog.remove());
       },{once:true});

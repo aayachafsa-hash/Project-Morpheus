@@ -69,7 +69,8 @@ export function createRotationController({view,settings,bindings,level,onInput,o
       const index=a.axis.startsWith('Pitch')?0:a.axis.startsWith('Yaw')?1:2;
       if(index===2&&!twistUnlocked)return;
       const direction=/Up|Right/.test(a.axis)?1:-1;
-      rotate(index,THREE.MathUtils.degToRad((a.fine?settings.NUDGE_FINE_DEG:settings.NUDGE_DEG)*direction),a.assembly);onHint('tumble');return;
+      const degrees=a.degrees??(a.fine?settings.NUDGE_FINE_DEG:settings.NUDGE_DEG);
+      rotate(index,THREE.MathUtils.degToRad(degrees*direction),a.assembly);onHint('tumble');return;
     }
     if(a.type==='TumbleDelta'||a.type==='TwistDelta')pending.push(a);
   }

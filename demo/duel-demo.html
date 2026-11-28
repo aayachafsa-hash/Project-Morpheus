@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morpheus Duel Demo</title>
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}
+  </script>
+  <style>
+    body { color-scheme: dark; font: 1rem system-ui, sans-serif; max-width: 46rem; margin: 3rem auto; padding: 0 1rem; }
+    .players { display: flex; flex-wrap: wrap; gap: 2rem; margin-block: 1.5rem; }
+    .players > section { flex: 1 1 12rem; }
+    meter { display: block; width: 100%; }
+    output { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Morpheus Duel Demo</h1>
+    <p>Rotate toward the target yaw shown for each round. Match scores simulate silhouette overlap from rotation.</p>
+    <p id="round"></p>
+    <p><strong>Score</strong> <output id="score">0 – 0</output> · <strong>Time</strong> <output id="timer">01:30</output></p>
+    <div class="players">
+      <section data-player="p1">
+        <h2>Player 1</h2>
+        <p class="keys"></p>
+        <p>Yaw <output class="yaw">0°</output></p>
+        <label>Match <output class="match">0%</output><meter min="0" max="100" value="0"></meter></label>
+      </section>
+      <section data-player="p2">
+        <h2>Player 2</h2>
+        <p class="keys"></p>
+        <p>Yaw <output class="yaw">0°</output></p>
+        <label>Match <output class="match">0%</output><meter min="0" max="100" value="0"></meter></label>
+      </section>
+    </div>
+    <p id="status" role="status"></p>
+    <button id="advance" type="button">Start duel</button>
+  </main>
+  <script type="module" src="./duel-demo.js"></script>
+</body>
+</html>

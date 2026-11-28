@@ -81,14 +81,21 @@
   transition: border-color var(--mp-dur-hover) var(--mp-ease), box-shadow var(--mp-dur-hover) var(--mp-ease), background var(--mp-dur-hover) var(--mp-ease);
 }
 .mp-btn__chev { width: 0.9rem; height: 0.9rem; color: var(--mp-gold); transition: transform var(--mp-dur-hover) var(--mp-ease); }
-.mp-btn:hover:not([aria-disabled="true"]), .mp-btn[data-selected="true"] { border-color: var(--mp-gold); box-shadow: var(--mp-glow-gold); background: linear-gradient(180deg, color-mix(in srgb, var(--mp-gold) 20%, transparent), color-mix(in srgb, var(--mp-bronze) 6%, transparent)); }
-.mp-btn:hover:not([aria-disabled="true"]) .mp-btn__chev { transform: translateX(3px); }
+/* Active-row rule: inside the main menu and dialogs a row is highlighted by :focus only (hover moves focus via
+   hoverFocus.js), so hover + focus can never paint two rows. Everywhere else :hover still paints as before. */
+.mp-btn:not(:where(.mp-main-menu, .mp-dialog) .mp-btn):hover:not([aria-disabled="true"]), :where(.mp-main-menu, .mp-dialog) .mp-btn:focus:not([aria-disabled="true"]), .mp-btn[data-selected="true"] { border-color: var(--mp-gold); box-shadow: var(--mp-glow-gold); background: linear-gradient(180deg, color-mix(in srgb, var(--mp-gold) 20%, transparent), color-mix(in srgb, var(--mp-bronze) 6%, transparent)); }
+.mp-btn:not(:where(.mp-main-menu, .mp-dialog) .mp-btn):hover:not([aria-disabled="true"]) .mp-btn__chev, :where(.mp-main-menu, .mp-dialog) .mp-btn:focus:not([aria-disabled="true"]) .mp-btn__chev { transform: translateX(3px); }
 .mp-btn:active:not([aria-disabled="true"]) { transform: translateY(1px); }
 .mp-btn[aria-disabled="true"] { opacity: 0.45; cursor: default; }
 .mp-btn--teal { color: var(--mp-parchment); border-color: var(--mp-teal); background: var(--mp-teal-deep); }
 .mp-btn--teal .mp-btn__chev { color: var(--mp-teal); }
-.mp-btn--teal:hover:not([aria-disabled="true"]) { border-color: var(--mp-teal); box-shadow: var(--mp-glow-teal); background: color-mix(in srgb, var(--mp-teal-deep) 82%, var(--mp-teal)); }
+.mp-btn--teal:not(:where(.mp-main-menu, .mp-dialog) .mp-btn):hover:not([aria-disabled="true"]), :where(.mp-main-menu, .mp-dialog) .mp-btn--teal:focus:not([aria-disabled="true"]) { border-color: var(--mp-teal); box-shadow: var(--mp-glow-teal); background: color-mix(in srgb, var(--mp-teal-deep) 82%, var(--mp-teal)); }
 .mp-btn--quiet { background: transparent; border-color: var(--mp-border-soft); color: var(--mp-tan); }
+/* In the main menu and in menu dialogs exactly one row is boxed: the focused one. A gold button (PLAY, Resume...) is
+   plain like its neighbours until it is the active row, so it no longer keeps its box while another row is hovered. */
+:is(.mp-main-menu, .mp-dialog--menu) .mp-btn:not(.mp-btn--quiet):not(:focus):not([data-selected="true"]):not([aria-disabled="true"]) { background: transparent; border-color: transparent; color: var(--mp-tan); }
+:is(.mp-main-menu, .mp-dialog--menu) .mp-btn:not(:focus):not([data-selected="true"]) .mp-btn__chev { opacity: 0; }
+:is(.mp-main-menu, .mp-dialog--menu) .mp-btn .mp-btn__chev { transition: opacity var(--mp-dur-hover) var(--mp-ease), transform var(--mp-dur-hover) var(--mp-ease); }
 
 /* ───────── MenuItem (left-aligned; frame + chevron only when selected/hovered/focused) ───────── */
 .mp-menu-item {
@@ -100,12 +107,12 @@
 }
 .mp-menu-item__chev { width: 0.9rem; height: 0.9rem; color: var(--mp-gold); opacity: 0; transform: translateX(-4px); transition: opacity var(--mp-dur-hover) var(--mp-ease), transform var(--mp-dur-hover) var(--mp-ease); }
 .mp-menu-item__sub { display: block; margin-top: 0.35rem; font-size: var(--mp-fs-caption); letter-spacing: var(--mp-ls-body); text-transform: none; color: var(--mp-tan-dim); }
-.mp-menu-item:hover, .mp-menu-item:focus-visible, .mp-menu-item[data-selected="true"] {
+.mp-menu-item:not(:where(.mp-main-menu, .mp-dialog) .mp-menu-item):hover, .mp-menu-item:focus-visible, :is(.mp-main-menu, .mp-dialog) .mp-menu-item:focus, .mp-menu-item[data-selected="true"] {
   color: var(--mp-parchment); border-color: var(--mp-gold); box-shadow: var(--mp-shadow-menu-item);
   background: linear-gradient(90deg, color-mix(in srgb, var(--mp-gold) 14%, transparent), color-mix(in srgb, var(--mp-gold) 2%, transparent));
 }
-.mp-menu-item:hover .mp-menu-item__chev, .mp-menu-item:focus-visible .mp-menu-item__chev, .mp-menu-item[data-selected="true"] .mp-menu-item__chev { opacity: 1; transform: none; }
-.mp-menu-item:hover .mp-menu-item__sub, .mp-menu-item:focus-visible .mp-menu-item__sub, .mp-menu-item[data-selected="true"] .mp-menu-item__sub { color: var(--mp-tan); }
+.mp-menu-item:not(:where(.mp-main-menu, .mp-dialog) .mp-menu-item):hover .mp-menu-item__chev, .mp-menu-item:focus-visible .mp-menu-item__chev, :is(.mp-main-menu, .mp-dialog) .mp-menu-item:focus .mp-menu-item__chev, .mp-menu-item[data-selected="true"] .mp-menu-item__chev { opacity: 1; transform: none; }
+.mp-menu-item:not(:where(.mp-main-menu, .mp-dialog) .mp-menu-item):hover .mp-menu-item__sub, .mp-menu-item:focus-visible .mp-menu-item__sub, :is(.mp-main-menu, .mp-dialog) .mp-menu-item:focus .mp-menu-item__sub, .mp-menu-item[data-selected="true"] .mp-menu-item__sub { color: var(--mp-tan); }
 
 /* ───────── IconButton (corner Reset / Pause) ───────── */
 .mp-icon-btn { all: unset; box-sizing: border-box; display: inline-flex; flex-direction: column; align-items: center; gap: var(--mp-space-icon-caption); cursor: pointer; color: var(--mp-parchment); min-width: var(--mp-hit); }
@@ -200,9 +207,13 @@
 .mp-laurel-title[data-tone="neutral"] .mp-laurel-title__text { text-shadow: none; }
 
 /* ───────── Shared focus state: brighter gold ring + faint glow ─────────
+   Inside the main menu and every dialog the ring follows plain :focus, not just :focus-visible: browsers only
+   treat script focus as "keyboard" focus before the first mouse click, so :focus-visible alone made the menu
+   look different after you had played (focus is moved by script on hover, on open and when returning).
    Kept AFTER every component rule on purpose: those rules start with `all: unset`,
    which would otherwise cancel this outline (same specificity, later wins). */
-.mp-btn:focus-visible, .mp-menu-item:focus-visible, .mp-icon-btn:focus-visible, .mp-tab:focus-visible, .mp-level-tile:focus-visible, .mp-slot:focus-visible {
+.mp-btn:focus-visible, .mp-menu-item:focus-visible, .mp-icon-btn:focus-visible, .mp-tab:focus-visible, .mp-level-tile:focus-visible, .mp-slot:focus-visible,
+:is(.mp-main-menu, .mp-dialog) :is(.mp-btn, .mp-menu-item, .mp-tab, .mp-level-tile, .mp-slot):focus {
   outline: var(--mp-focus-ring); outline-offset: var(--mp-focus-offset); box-shadow: var(--mp-glow-gold);
 }
 .mp-icon-btn:focus-visible { box-shadow: none; }
@@ -230,6 +241,6 @@
   .mp-progress__fill::after, .mp-dust, .mp-backdrop[data-variant="win"] .mp-backdrop__glow { animation: none; }
   .mp-dust { opacity: 0.35; }
   .mp-btn, .mp-menu-item, .mp-tab, .mp-panel, .mp-icon-btn__ring, .mp-slot, .mp-level-tile, .mp-progress__fill, .mp-btn__chev, .mp-menu-item__chev { transition-duration: 1ms; }
-  .mp-btn:hover .mp-btn__chev { transform: none; }
+  .mp-btn:hover .mp-btn__chev, :where(.mp-main-menu, .mp-dialog) .mp-btn:focus:not([aria-disabled="true"]) .mp-btn__chev { transform: none; }
 }
 

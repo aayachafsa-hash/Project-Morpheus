@@ -4,6 +4,7 @@ import { createEnvironment } from './Environment.js?room-glb';
 import { addLighting } from './Lighting.js';
 import { loadSceneAssets, loadPuzzleGeometry, replacePuzzleGeometry } from './AssetLoader.js';
 import { createSelectionGizmo } from './SelectionGizmo.js';
+import { createDuelRig } from './DuelRig.js';
 
 import { createProjectorAtmosphere } from './ProjectorAtmosphere.js';
 import { createFireflies } from './Fireflies.js';
@@ -30,7 +31,9 @@ export async function createScene(stage,onProgress=()=>{},initialLevel) {
   onProgress(.06,'Loading the gallery');
   const manager=new THREE.LoadingManager();
   manager.onProgress=(_url,loaded,total)=>onProgress(.06+.64*loaded/Math.max(1,total),'Loading the gallery');
-  const { wall, roomMeshesOutsideProjection, stoneNoise, lens, platform } = await createEnvironment(scene, renderer,manager);
+  const { wall, floor, roomMeshesOutsideProjection, stoneNoise, lens, platform } = await createEnvironment(scene, renderer,manager);
+  // Snapshot of the room's own meshes, taken before the atmosphere/fireflies/pulse groups are pushed onto the list.
+  const roomMeshes = roomMeshesOutsideProjection.slice();
   onProgress(.72,'Loading the first puzzle');
   const { piece } = await loadSceneAssets(scene, stoneNoise,manager,initialLevel);
   onProgress(.84,'Preparing light and atmosphere');
@@ -83,6 +86,7 @@ export async function createScene(stage,onProgress=()=>{},initialLevel) {
 
   return {
     canvas, camera, piece, pieces: [piece], spotlight, resize, invalidateRender,
+    duelRig: createDuelRig({ renderer, scene, soloCamera: camera, soloPiece: piece, atmosphere, fireflies, invalidateSolo: invalidateRender, roomMeshes, extendable: [wall, floor] }),
     prepareLevel(level){return loadPuzzleGeometry(level);},
     replaceLevel(geometry,level){replacePuzzleGeometry(piece,geometry,level);invalidateRender();},
     invalidateShadows() { renderer.shadowMap.needsUpdate = true; needsRender = true; },

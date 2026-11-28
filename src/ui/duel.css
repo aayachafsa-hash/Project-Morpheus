@@ -1,0 +1,482 @@
+/* Duel mode (split screen). Uses the existing tokens only. */
+.mp-duel-mode {
+  --mp-duel-inset-inline: clamp(var(--mp-space-5), 3.4vw, var(--mp-space-8));
+  --mp-duel-inset-top: max(clamp(var(--mp-space-5), 5dvh, var(--mp-space-7)), env(safe-area-inset-top));
+  --mp-duel-inset-bottom: max(clamp(var(--mp-space-4), 3.5dvh, var(--mp-space-6)), env(safe-area-inset-bottom));
+}
+.mp-duel-mode header {
+  inset: var(--mp-duel-inset-top) var(--mp-duel-inset-inline) auto;
+  z-index: 4;
+}
+.mp-duel {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  justify-items: center;
+  row-gap: clamp(var(--mp-space-3), 3dvh, var(--mp-space-6));
+  padding-block-start: var(--mp-duel-inset-top);
+  pointer-events: none;
+  color: var(--mp-parchment);
+}
+/* One room, two players. The canvas draws each half separately, so the seam is hidden here: both halves fall
+   to the same dim wall tone at the centre (the stretch between two light cones), and each half keeps its own
+   warm light pool. Tune with the --duel-* variables. No blend modes: .mp-duel is its own stacking context. */
+.mp-duel {
+  --duel-seam-dim: .30;      /* how dark the wall is exactly on the seam (0 hides nothing, 1 is black) */
+  --duel-seam-reach: 18%;    /* how far each side of the seam the falloff travels */
+  --duel-pool: 15%;          /* strength of each half's light pool */
+  --duel-pool-tint: 9%;      /* how much of the player colour the pool carries */
+}
+.mp-duel__room { position: absolute; inset: 0; }
+.mp-duel__room::before, .mp-duel__room::after { content: ""; position: absolute; inset: 0; }
+/* Wall between the two light cones: symmetric, so the left and right halves meet at the same tone. */
+.mp-duel__room::before {
+  background:
+    linear-gradient(90deg, transparent calc(50% - var(--duel-seam-reach)),
+      color-mix(in srgb, var(--mp-bg-0) calc(var(--duel-seam-dim) * 100%), transparent) calc(50% - 2%),
+      color-mix(in srgb, var(--mp-bg-0) calc(var(--duel-seam-dim) * 100%), transparent) calc(50% + 2%),
+      transparent calc(50% + var(--duel-seam-reach))),
+    radial-gradient(ellipse 14% 62% at 50% 46%, color-mix(in srgb, var(--mp-bg-0) 30%, transparent), transparent);
+}
+/* Fade the edges above the room lighting. The wall and the two shadows stay clear through the middle. */
+.mp-duel__room::after {
+  background:
+    linear-gradient(to bottom, var(--mp-bg-0) 0%,
+      color-mix(in srgb, var(--mp-bg-0) 94%, transparent) 7%,
+      color-mix(in srgb, var(--mp-bg-0) 72%, transparent) 15%,
+      color-mix(in srgb, var(--mp-bg-0) 28%, transparent) 25%, transparent 37%),
+    linear-gradient(to top, var(--mp-bg-0) 0%,
+      color-mix(in srgb, var(--mp-bg-0) 94%, transparent) 5%,
+      color-mix(in srgb, var(--mp-bg-0) 70%, transparent) 11%,
+      color-mix(in srgb, var(--mp-bg-0) 24%, transparent) 21%, transparent 32%),
+    radial-gradient(ellipse 30% 46% at 25% 44%,
+      color-mix(in srgb, color-mix(in srgb, var(--mp-gold-bright) calc(100% - var(--duel-pool-tint)), var(--mp-p1)) var(--duel-pool), transparent), transparent 72%),
+    radial-gradient(ellipse 30% 46% at 75% 44%,
+      color-mix(in srgb, color-mix(in srgb, var(--mp-gold-bright) calc(100% - var(--duel-pool-tint)), var(--mp-p2)) var(--duel-pool), transparent), transparent 72%);
+}
+/* The seam stays below the HUD. Its two light layers can animate independently. */
+.mp-duel__divider {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: var(--mp-border-width);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.mp-duel__divider::before,
+.mp-duel__divider::after,
+.mp-duel__sweep {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.mp-duel__divider::before {
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--mp-gold) 62%, transparent) 20%,
+    var(--mp-gold) 48%, color-mix(in srgb, var(--mp-gold) 58%, transparent) 80%, transparent);
+  filter: drop-shadow(0 0 .625rem color-mix(in srgb, var(--mp-gold) 39%, transparent));
+  opacity: .8;
+  animation: mp-duel-divider-breathe 5s ease-in-out infinite;
+}
+.mp-duel__divider::after {
+  background: linear-gradient(180deg, transparent, var(--mp-gold-bright), transparent) no-repeat 50% 0% / 100% 6rem;
+  filter: drop-shadow(0 0 .5rem color-mix(in srgb, var(--mp-gold) 42%, transparent));
+  opacity: 0;
+  animation: mp-duel-divider-pulse 5s ease-in-out infinite;
+}
+@keyframes mp-duel-divider-breathe {
+  0%, 100% { opacity: .6; }
+  50% { opacity: 1; }
+}
+@keyframes mp-duel-divider-pulse {
+  0%, 15% { background-position: 50% 0%; opacity: 0; }
+  28%, 62% { opacity: .65; }
+  83%, 100% { background-position: 50% 100%; opacity: 0; }
+}
+
+.mp-duel__sweep {
+  background: linear-gradient(180deg, transparent 8%, var(--mp-gold-bright) 48%, transparent 92%);
+  filter: drop-shadow(0 0 .75rem var(--mp-gold));
+  opacity: 0;
+}
+.mp-duel__win-light { position: absolute; inset: 0; }
+.mp-duel__win-light::before, .mp-duel__win-light::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 50%;
+  opacity: 0;
+}
+.mp-duel__win-light::before {
+  background: radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--mp-gold) 26%, transparent), transparent 71%);
+}
+.mp-duel__win-light::after { background: color-mix(in srgb, var(--mp-bg-0) 25%, transparent); }
+.mp-duel[data-winner="p1"] { --mp-duel-win-direction: -1; }
+.mp-duel[data-winner="p2"] { --mp-duel-win-direction: 1; }
+.mp-duel[data-winner="p1"] .mp-duel__win-light::before,
+.mp-duel[data-winner="p2"] .mp-duel__win-light::after { left: 0; }
+.mp-duel[data-winner="p2"] .mp-duel__win-light::before,
+.mp-duel[data-winner="p1"] .mp-duel__win-light::after { right: 0; }
+.mp-duel[data-winner] .mp-duel__win-light::before,
+.mp-duel[data-winner] .mp-duel__win-light::after {
+  opacity: .55;
+  animation: mp-duel-win-light 1000ms var(--mp-ease);
+}
+.mp-duel[data-winner] .mp-duel__sweep { animation: mp-duel-win-sweep 850ms var(--mp-ease); }
+@keyframes mp-duel-win-light {
+  from { opacity: 0; }
+  30% { opacity: 1; }
+  to { opacity: .55; }
+}
+@keyframes mp-duel-win-sweep {
+  0% { opacity: 0; transform: translateX(0); }
+  13% { opacity: .95; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(calc(var(--mp-duel-win-direction) * 26vw)); }
+}
+.mp-duel__centre {
+  grid-area: 1 / 1;
+  display: grid;
+  justify-items: center;
+  padding: calc(var(--mp-space-3) + var(--mp-space-1) / 2) var(--mp-space-4);
+  inline-size: 11.875rem;
+  background: linear-gradient(165deg, var(--mp-bg-3), var(--mp-bg-1));
+  border-color: var(--mp-border);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  text-align: center;
+}
+.mp-duel__title {
+  margin: 0;
+  font: var(--mp-fw-display) var(--mp-fs-label) / 1.25 var(--mp-font-display);
+  letter-spacing: var(--mp-ls-caption);
+  text-transform: uppercase;
+  color: var(--mp-gold);
+}
+.mp-duel__round, .mp-duel__level {
+  letter-spacing: var(--mp-ls-caption);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mp-tan) 82%, var(--mp-parchment));
+}
+.mp-duel__round { margin-block-start: calc(var(--mp-space-1) * 1.5); }
+.mp-duel__score { margin-block-start: var(--mp-space-2); }
+.mp-duel__score {
+  font: var(--mp-fw-display) 2.5rem / 1 var(--mp-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: normal;
+  white-space: nowrap;
+  color: var(--mp-parchment);
+}
+.mp-duel__timing {
+  margin-block-start: calc(var(--mp-space-2) + var(--mp-space-1) / 2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mp-space-1) var(--mp-space-2);
+}
+.mp-duel__threshold { color: var(--mp-gold); white-space: nowrap; }
+.mp-duel__timer {
+  padding: calc(var(--mp-space-1) / 2) var(--mp-space-2);
+  border: var(--mp-border-width) solid var(--mp-border-soft);
+  border-radius: var(--mp-r-sm);
+  background: color-mix(in srgb, var(--mp-bg-0) 35%, transparent);
+  font: var(--mp-fw-label) var(--mp-fs-caption) / 1.2 var(--mp-font-ui);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--mp-ls-caption);
+  color: var(--mp-gold);
+}
+.mp-duel__timer[data-low="true"] { color: var(--mp-fail-text); }
+.mp-duel__target {
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--mp-space-1) * 1.5);
+  inline-size: 100%;
+  margin: calc(var(--mp-space-2) + var(--mp-space-1) / 2) 0 0;
+}
+.mp-duel__target .mp-target-tile {
+  inline-size: min(100%, 7rem, 19dvh);
+  padding: var(--mp-space-2);
+  border: var(--mp-border-width) solid var(--mp-gold);
+}
+.mp-duel__level { overflow-wrap: anywhere; }
+.mp-duel__card {
+  position: absolute;
+  inset-block-start: calc(var(--mp-duel-inset-top) + var(--mp-hit) + var(--mp-space-4));
+  min-width: 0;
+  inline-size: clamp(11rem, 13vw, 16rem);
+  padding: var(--mp-space-4);
+  border-radius: var(--mp-r-md);
+  background: linear-gradient(165deg, var(--mp-bg-3), var(--mp-bg-1));
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.mp-duel__card[data-player="p1"] { inset-inline-start: var(--mp-duel-inset-inline); }
+.mp-duel__card[data-player="p2"] { inset-inline-end: var(--mp-duel-inset-inline); }
+.mp-duel__card .mp-stat { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--mp-space-4); }
+.mp-duel__card .mp-stat__value { font-size: var(--mp-fs-hud-numeral); inline-size: 5ch; text-align: end; }
+.mp-duel__card[data-solved="true"] { border-color: var(--mp-gold); box-shadow: var(--mp-shadow-panel), var(--mp-glow-gold); }
+.mp-duel__hints {
+  position: absolute;
+  inset-block-end: var(--mp-duel-inset-bottom);
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--mp-space-2) var(--mp-space-4);
+  inline-size: max-content;
+  max-inline-size: calc(50% - 2 * var(--mp-duel-inset-inline));
+  padding: var(--mp-space-2) var(--mp-space-4);
+  border: var(--mp-border-width) solid var(--mp-border-soft);
+  border-radius: var(--mp-r-md);
+  background: var(--mp-hint-surface);
+  box-shadow: var(--mp-shadow-panel);
+}
+.mp-duel__hints[data-player="p1"] { inset-inline-start: 25%; border-color: color-mix(in srgb, var(--mp-p1) 55%, transparent); }
+.mp-duel__hints[data-player="p2"] { inset-inline-start: 75%; border-color: color-mix(in srgb, var(--mp-p2) 55%, transparent); }
+.mp-duel__hints .mp-key-hint { gap: var(--mp-space-compact); white-space: nowrap; }
+.mp-duel__countdown, .mp-duel__banner {
+  grid-area: 2 / 1;
+  position: relative;
+  text-align: center;
+  text-shadow: var(--mp-shadow-wordmark);
+}
+.mp-duel__countdown { font-size: clamp(2rem, min(9vw, 14dvh), 6rem); color: var(--mp-gold-bright); }
+.mp-duel__banner { color: var(--mp-gold-bright); text-transform: uppercase; letter-spacing: var(--mp-ls-title); }
+
+/* The solo HUD gives way to the duel HUD. */
+.mp-duel-mode .study, .mp-duel-mode .mp-binding-hints, .mp-duel-mode #control-hints, .mp-duel-mode header h1,
+.mp-duel-mode .actions .mp-toolbar__item:has(#reset), .mp-duel-mode .actions .mp-toolbar__item:has(#mp-settings) { display: none; }
+
+/* Dialogs */
+.mp-duel-rounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--mp-space-2); }
+.mp-duel-controls { display: grid; grid-template-columns: 1fr 1fr; gap: var(--mp-space-3); }
+.mp-duel-controls__player { padding: var(--mp-space-3); border: 1px solid var(--mp-border-soft); border-radius: var(--mp-r-sm); }
+.mp-duel-controls__player[data-player="p1"] h3 { color: var(--mp-p1); }
+.mp-duel-controls__player[data-player="p2"] h3 { color: var(--mp-p2); }
+.mp-duel-controls__player h3 { margin: 0 0 var(--mp-space-2); }
+.mp-duel-controls dl { display: grid; grid-template-columns: auto 1fr; gap: var(--mp-space-2) var(--mp-space-3); margin: 0; align-items: center; }
+.mp-duel-controls dt { color: var(--mp-tan); font: var(--mp-fw-body) var(--mp-fs-caption) / 1.3 var(--mp-font-ui); }
+.mp-duel-controls dd { margin: 0; display: flex; flex-wrap: wrap; gap: var(--mp-space-1); }
+.mp-duel-table { inline-size: 100%; border-spacing: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.mp-duel-table :is(th, td) { padding: var(--mp-space-2); border-bottom: var(--mp-border-width) solid var(--mp-border-soft); }
+.mp-duel-table thead th { color: var(--mp-tan); font: var(--mp-fw-label) var(--mp-fs-caption) / 1 var(--mp-font-ui); letter-spacing: var(--mp-ls-caption); text-transform: uppercase; }
+.mp-duel-table tbody th { text-align: start; letter-spacing: var(--mp-ls-label); }
+.mp-duel-table tr[data-player="p1"] th { color: var(--mp-p1); }
+.mp-duel-table tr[data-player="p2"] th { color: var(--mp-p2); }
+.mp-duel-table tr[data-winner="true"] td { color: var(--mp-gold-bright); }
+
+@media (max-height: 48rem) {
+  .mp-duel-mode {
+    --mp-duel-inset-top: max(clamp(var(--mp-space-4), 4dvh, var(--mp-space-6)), env(safe-area-inset-top));
+  }
+  .mp-duel__score { font-size: clamp(2rem, 5.8dvh, 2.5rem); }
+}
+@media (max-width: 44rem) {
+  .mp-duel-mode {
+    --mp-duel-inset-inline: var(--mp-space-3);
+  }
+  .mp-duel__centre { inline-size: min(42vw, 11.875rem); padding-inline: var(--mp-space-3); }
+  .mp-duel__score { font-size: clamp(1.65rem, 7vw, 2.75rem); }
+  .mp-duel__card { inline-size: min(22vw, 9rem); gap: var(--mp-space-2); padding: var(--mp-space-2); }
+  .mp-duel__card .mp-hud-card__body { padding: var(--mp-space-2); }
+  .mp-duel__card .mp-stat { flex-direction: column; gap: var(--mp-space-1); }
+  .mp-duel__card .mp-stat__value { inline-size: auto; font-size: clamp(1.2rem, 5vw, 1.85rem); }
+  .mp-duel__hints { gap: var(--mp-space-1) var(--mp-space-2); padding: var(--mp-space-2); }
+  .mp-duel__hints .mp-key-hint { gap: var(--mp-space-1); }
+  .mp-duel__hints .mp-key { min-width: 0; padding-inline: var(--mp-space-1); }
+}
+@media (max-width: 40rem) {
+  .mp-duel-controls { grid-template-columns: 1fr; }
+}
+@media (max-height: 27rem) and (min-width: 34rem) {
+  .mp-duel__centre {
+    inline-size: clamp(13rem, 36vw, 18rem);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    column-gap: var(--mp-space-3);
+    grid-template-areas:
+      "title target"
+      "round target"
+      "score target"
+      "timer target";
+  }
+  .mp-duel__title { grid-area: title; }
+  .mp-duel__round { grid-area: round; }
+  .mp-duel__score { grid-area: score; font-size: clamp(1.55rem, 4.4vw, 2.35rem); }
+  .mp-duel__timing { grid-area: timer; }
+  .mp-duel__target { grid-area: target; align-self: center; margin-block-start: 0; }
+  .mp-duel__target .mp-target-tile { inline-size: min(100%, 5.75rem); }
+}
+
+/* Round results */
+.mp-dialog.mp-duel-result {
+  --mp-duel-secondary: color-mix(in srgb, var(--mp-tan) 81%, var(--mp-parchment));
+  inline-size: min(var(--mp-dialog-width), calc(100% - 2 * var(--mp-space-3)));
+  max-block-size: calc(100dvh - 2 * var(--mp-space-3));
+}
+.mp-duel-result .mp-dialog__panel {
+  padding: calc(var(--mp-space-5) + var(--mp-space-1)) var(--mp-space-6) var(--mp-space-5);
+}
+.mp-duel-result :is(.mp-text-caption, .mp-text-body) { color: var(--mp-duel-secondary); }
+.mp-duel-result [data-player="p1"] { --mp-duel-player: var(--mp-p1); }
+.mp-duel-result [data-player="p2"] { --mp-duel-player: var(--mp-p2); }
+.mp-duel-result__heading { text-align: center; }
+.mp-duel-result__eyebrow { margin: 0 0 var(--mp-space-3); }
+.mp-duel-result__award {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--mp-space-3);
+}
+.mp-duel-result__award .mp-laurel {
+  justify-self: end;
+  width: var(--mp-space-6);
+  height: calc(var(--mp-space-7) + var(--mp-space-2));
+  color: var(--mp-gold);
+  animation: mp-duel-laurel .55s var(--mp-ease) both;
+}
+.mp-duel-result__award .mp-laurel:last-child { justify-self: start; transform: scaleX(-1); }
+.mp-duel-result__award h2 {
+  margin: 0;
+  display: grid;
+  gap: var(--mp-space-1);
+  animation: mp-duel-title-in .42s var(--mp-ease) .28s both;
+}
+.mp-duel-result__headline {
+  font: var(--mp-fw-display) clamp(1.35rem, 5.4vw, 2.45rem) / 1.1 var(--mp-font-display);
+  letter-spacing: var(--mp-ls-caption);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--mp-duel-player, var(--mp-gold));
+}
+.mp-duel-result__verdict { letter-spacing: var(--mp-ls-title); white-space: nowrap; }
+.mp-duel-result__reason { margin: var(--mp-space-2) 0 0; }
+@keyframes mp-duel-laurel {
+  from { clip-path: inset(100% 0 0); opacity: .25; }
+  to { clip-path: inset(0); opacity: 1; }
+}
+@keyframes mp-duel-title-in {
+  from { opacity: 0; transform: translateY(var(--mp-space-2)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mp-duel-result__content, .mp-duel-result__buttons { display: grid; gap: var(--mp-space-5); }
+.mp-duel-result__score-group { display: grid; justify-items: center; gap: var(--mp-space-2); }
+.mp-duel-result__score {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+  justify-items: center;
+  gap: var(--mp-space-3);
+  font: var(--mp-fw-display) clamp(1.8rem, 6vw, 2.65rem) / 1 var(--mp-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.mp-duel-result__score [data-player] {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mp-space-2);
+  color: var(--mp-duel-player);
+}
+.mp-duel-result__score strong { font-weight: var(--mp-fw-display); }
+.mp-duel-result__score [data-player="p1"] { justify-self: end; }
+.mp-duel-result__score [data-player="p2"] { justify-self: start; flex-direction: row-reverse; }
+.mp-duel-result__pips {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: var(--mp-space-2);
+  list-style: none;
+}
+.mp-duel-result__pips li {
+  width: var(--mp-space-2);
+  aspect-ratio: 1;
+  border-radius: var(--mp-r-circle);
+  border: var(--mp-border-width) solid var(--mp-bronze);
+}
+.mp-duel-result__pips [data-outcome="p1"] { background: var(--mp-p1); border-color: var(--mp-p1); }
+.mp-duel-result__pips [data-outcome="p2"] { background: var(--mp-p2); border-color: var(--mp-p2); }
+.mp-duel-result__pips [data-outcome="draw"] { background: var(--mp-tan); border-color: var(--mp-tan); }
+
+.mp-duel-result__table { color: var(--mp-duel-secondary); }
+.mp-duel-result__table :is(th, td) { padding: var(--mp-space-3) var(--mp-space-2); }
+.mp-duel-result__table thead th { color: var(--mp-duel-secondary); }
+.mp-duel-result__table tr[data-winner] td { color: inherit; }
+.mp-duel-result__table tbody td[data-better] { color: var(--mp-gold-bright); }
+.mp-duel-result__table tbody td[data-missing] { color: color-mix(in srgb, var(--mp-tan-dim) 68%, var(--mp-tan)); }
+.mp-duel-result__table tr[data-winner="true"] {
+  background-color: color-mix(in srgb, var(--mp-gold) 7%, transparent);
+  background-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--mp-gold) 17%, transparent), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -75% 0;
+  animation: mp-duel-table-sweep 850ms var(--mp-ease) .24s;
+}
+.mp-duel-result__table tr[data-winner="true"] th {
+  box-shadow: inset var(--mp-border-width) 0 var(--mp-gold);
+}
+.mp-duel-result__bar {
+  margin-block-start: var(--mp-space-1);
+  block-size: calc(var(--mp-space-1) / 2);
+  background: var(--mp-bronze-dim);
+}
+.mp-duel-result__bar span {
+  display: block;
+  block-size: 100%;
+  background: var(--mp-tan);
+  transform-origin: left;
+  animation: mp-duel-match-bar 740ms var(--mp-ease) .18s both;
+}
+.mp-duel-result__table td[data-better] .mp-duel-result__bar span { background: var(--mp-gold); }
+.mp-duel-result__table [data-win-points] {
+  display: inline-block;
+  animation: mp-duel-points-pop .55s var(--mp-ease) .48s both;
+}
+@keyframes mp-duel-table-sweep {
+  from { background-position: -75% 0; }
+  to { background-position: 190% 0; }
+}
+@keyframes mp-duel-match-bar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes mp-duel-points-pop {
+  0%, 100% { transform: scale(1); text-shadow: none; }
+  40% { transform: scale(1.22); text-shadow: var(--mp-glow-gold); }
+}
+
+.mp-duel-result__buttons { gap: var(--mp-space-3); }
+.mp-duel-result .mp-duel-result__next {
+  min-height: 3.25rem;
+  border-color: var(--mp-border);
+  background: linear-gradient(180deg, var(--mp-bg-3), var(--mp-bg-1));
+  color: var(--mp-parchment);
+}
+.mp-duel-result .mp-duel-result__menu {
+  min-height: 2.5rem;
+  justify-self: center;
+  justify-content: center;
+  border-color: transparent;
+  background: transparent;
+  color: var(--mp-duel-secondary);
+}
+.mp-dialog.mp-duel-result :is(.mp-duel-result__next, .mp-duel-result__menu):focus {
+  outline: none;
+  border-color: var(--mp-gold);
+  box-shadow: var(--mp-glow-gold);
+}
+
+@media (max-width: 32rem) {
+  .mp-duel-result .mp-dialog__panel { padding-inline: var(--mp-space-4); }
+  .mp-duel-result__award { gap: var(--mp-space-2); }
+  .mp-duel-result__award .mp-laurel { width: var(--mp-space-card); height: var(--mp-space-6); }
+  .mp-duel-result__table :is(th, td) { padding-inline: var(--mp-space-1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-duel__divider::before, .mp-duel__divider::after, .mp-duel[data-winner] .mp-duel__sweep,
+  .mp-duel[data-winner] .mp-duel__win-light::before, .mp-duel[data-winner] .mp-duel__win-light::after,
+  .mp-duel-result__award :is(h2, .mp-laurel), .mp-duel-result__table tr[data-winner="true"],
+  .mp-duel-result__bar span, .mp-duel-result__table [data-win-points] { animation: none; }
+}

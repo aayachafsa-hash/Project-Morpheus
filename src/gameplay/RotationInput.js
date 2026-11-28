@@ -1,6 +1,8 @@
 export const INPUT_DEFAULTS = {
   SENSITIVITY_DEG_PER_PX: .38, FINE_MULT: .2, SLOW_SPEED: 80, FAST_SPEED: 650,
-  SLOW_GAIN: .70, NUDGE_DEG: 1, NUDGE_FINE_DEG: .25, UNDO_DEPTH: 50,
+  // Keyboard: a tap turns NUDGE_DEG; holding a key turns smoothly at a speed that ramps from MIN to MAX (deg/s).
+  SLOW_GAIN: .70, NUDGE_DEG: 2, NUDGE_FINE_DEG: .5, UNDO_DEPTH: 50,
+  NUDGE_SPEED_MIN: 70, NUDGE_SPEED_MAX: 190, NUDGE_RAMP_S: .6, NUDGE_HOLD_DELAY_S: .12,
   AXIS_FRAME: 'projector', TWIST_DEAD_ZONE: 18, FLICK_SPEED: 1100, FLICK_DECAY: .075,
   sensitivity: 1, invertX: false, invertY: false, assemblyMode: 'hold', fineMode: 'hold', shadowTint: false,
 };
@@ -44,7 +46,10 @@ export function adaptiveGain(speed, settings) {
 // This layer emits semantic actions only. It cannot access puzzle scores or poses.
 export function createInputLayer(canvas, emit, settings, bindings, {pieceCount=1, isEnabled=()=>true}={}) {
   const held=new Map(); let drag=null, assembly=false, fine=false, hadLock=false;
-  const editable=e=>e.target.isContentEditable || /^(INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY|A)$/.test(e.target.tagName);
+  // Only real text/value controls swallow gameplay keys. A focused button (Pause, Reset, Assist, or whatever a closed
+  // dialog gave focus back to) used to block every key until the canvas was clicked; it now only keeps Space/Enter.
+  const editable=e=>e.target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) ||
+    /^(BUTTON|SUMMARY|A)$/.test(e.target.tagName)&&(e.code==='Space'||e.code==='Enter');
   const actionFor=e=>Object.entries(bindings).find(([,keys])=>Array.isArray(keys)&&keys.includes(`${e.ctrlKey||e.metaKey?'Control+':''}${e.code}`))?.[0];
   function scope(name,down,repeat=false){
     const mode=name==='AssemblyScope'?settings.assemblyMode:settings.fineMode;
@@ -98,7 +103,8 @@ export function createInputLayer(canvas, emit, settings, bindings, {pieceCount=1
     if(e.repeat)return;
     if(/^(Pitch|Yaw|Roll)/.test(action)){
       if(!held.size)emit({type:'BeginNudge'});
-      held.set(e.code,{action,time:0,next:.2}); emit({type:'Nudge',axis:action,assembly,fine});
+      held.set(e.code,{action,time:0});
+      emit({type:'Nudge',axis:action,assembly,fine,degrees:(fine?settings.NUDGE_FINE_DEG:settings.NUDGE_DEG)*(settings.sensitivity??1)});
     }else if(action==='SelectNext')emit({type:'SelectNext'});
     else if(action.startsWith('SelectIndex'))emit({type:'SelectIndex',index:Number(action.at(-1))-1});
     else emit({type:action});
@@ -113,7 +119,10 @@ export function createInputLayer(canvas, emit, settings, bindings, {pieceCount=1
   addEventListener('blur',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();});
   return {clear,get dragging(){return Boolean(drag);},update(dt){for(const item of held.values()){
     item.time+=dt;
-    let repeats=0;
-    while(item.time>=item.next&&repeats++<8){emit({type:'Nudge',axis:item.action,assembly,fine});item.next+=Math.max(.016,.055-item.time*.018);}
+    if(item.time<settings.NUDGE_HOLD_DELAY_S)continue;
+    // Time-based, so the turn rate is the same at 30 and 144 fps.
+    const t=Math.min(1,(item.time-settings.NUDGE_HOLD_DELAY_S)/settings.NUDGE_RAMP_S);
+    const speed=settings.NUDGE_SPEED_MIN+(settings.NUDGE_SPEED_MAX-settings.NUDGE_SPEED_MIN)*t*t*(3-2*t);
+    emit({type:'Nudge',axis:item.action,assembly,fine,degrees:speed*dt*(settings.sensitivity??1)*(fine?settings.FINE_MULT:1)});
   }}};
 }

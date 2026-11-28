@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="./src/ui/styles.css?shadow-progress">
   <link rel="stylesheet" href="./src/ui/tokens.css">
   <link rel="stylesheet" href="./src/ui/ui.css">
+  <link rel="stylesheet" href="./src/ui/duel.css">
   <script type="importmap">
     {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
   </script>
@@ -52,7 +53,7 @@
       <i></i><i></i><i></i><i></i><i></i><i></i>
     </div>
     <p id="match-status" class="match-status" role="status"></p>
-    <button id="assist" class="solution-button mp-btn mp-btn--quiet" type="button" title="Ease toward the nearest solution" disabled>Assist</button>
+    <button id="assist" class="solution-button mp-btn mp-btn--quiet" type="button" title="Nudge the piece slightly toward the target" disabled>Assist</button>
     <button id="show-solution" class="solution-button mp-btn mp-btn--quiet" type="button">Show solution</button>
   </section>
   <div id="control-hints" role="status" aria-live="polite"></div>
@@ -82,12 +83,9 @@
   <section class="mp-main-menu" hidden></section>
   <div hidden><div id="input-settings"></div></div>
   <dialog class="mp-credits" data-mp-reusable="true" aria-labelledby="mp-credits-title">
-    <section class="mp-panel mp-credits__content">
-      <h2 id="mp-credits-title" class="mp-text-title">Credits</h2>
-      <p class="mp-text-body">Morpheus · ENSAM Studios</p>
-      <a class="gallery-link mp-text-body" href="./shadowmatic-gallery/gallery.html" target="_blank" rel="noopener">Explore Shadowmatic meshes ↗</a>
-      <form method="dialog"><button class="mp-btn" autofocus>Back to puzzle</button></form>
-    </section>
+    <h2 id="mp-credits-title" class="mp-text-caption">Credits</h2>
+    <a class="gallery-link mp-text-body" href="./shadowmatic-gallery/gallery.html" target="_blank" rel="noopener"
+       aria-label="Explore the Shadowmatic gallery (opens in a new tab)">Explore the Shadowmatic gallery <span aria-hidden="true">↗</span></a>
   </dialog>
   <div id="error" role="alert" hidden></div>
   <script type="module">
